@@ -13,7 +13,9 @@ url = 'https://www.booking.com'
 class BeginningStage():
 
     def __init__(self):
-        self.driver = webdriver.Chrome()
+        options = webdriver.ChromeOptions()
+        options.add_experimental_option('excludeSwitches', ['enable-logging'])
+        self.driver = webdriver.Chrome(options=options)
         # self.self.driver_path = self.driver_path
         # self.implicitly_wait(10)
         # self.results = []
@@ -52,27 +54,23 @@ class BeginningStage():
         search_button.click()
 
     def get_hotel_card(self):
-        results = []
+        results = {"Hotel Name" : [],"Hotel Price":[],"Hotel Distance":[]}
         property_card = self.driver.find_elements_by_class_name('sr_property_block')
         for items in property_card:
             hotel_name = items.find_element_by_class_name('sr-hotel__name').get_attribute('innerHTML').strip()
             hotel_price = items.find_element_by_class_name('prco-valign-middle-helper').get_attribute('innerHTML').strip()
-            hotel_distance = items.find_element_by_class_name('sr_card_address_line__user_destination_address'
-).get_attribute('innerHTML').strip()
+            hotel_distance = items.find_element_by_class_name('sr_card_address_line__user_destination_address').get_attribute('innerHTML').strip()
             # hotel_description = items.find_element_by_class_name('_5e1912b06f')
             # print(f'hotel description - {hotel_description}')
             # hotel_rating = items.find_element_by_class_name('eb2161f400 e5a32fd86b').get_attribute('innerHTML').strip()
             # print(f'hotel rating - {hotel_rating}')
             # hotel_address = items.find_element_by_css_selector('span[data-testid="address"]')
             # print(f'hotel address - {hotel_address}')
-            results.append([hotel_name, hotel_price, hotel_distance])
+            results['Hotel Name'].append(hotel_name)
+            results['Hotel Price'].append(hotel_price)
+            results['Hotel Distance'].append(hotel_distance)     
+        print(results)
         return results
-        
-
-
-
-
-
 
 first_booking = BeginningStage()
 first_booking.get_webpage()
