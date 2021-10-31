@@ -1,4 +1,5 @@
 from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
 import time
 
 # from time import sleep
@@ -13,6 +14,7 @@ import pandas as pd
 
 
 
+
 # self.driver = webself.driver.Chrome()
 url = 'https://www.booking.com'
 # self.driver.get(url)
@@ -22,7 +24,8 @@ class BeginningStage():
     def __init__(self):
         options = webdriver.ChromeOptions()
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
-        self.driver = webdriver.Chrome(options=options)
+        self.driver = webdriver.Chrome(ChromeDriverManager().install(),options=options)
+        # self.driver = webdriver.Chrome(options=options)
         options.add_argument("--start-maximized")
 
 
