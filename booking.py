@@ -37,21 +37,18 @@ class BeginningStage():
         accept = self.driver.find_element_by_id('onetrust-accept-btn-handler')
         accept.click()
 
-    def click_search_bar(self):
+    def choose_option_1(self):
         search_bar = self.driver.find_element_by_id('ss')
         search_bar.click()
-
-    def choose_option_1(self):
         first_option = self.driver.find_element_by_xpath('//*[@id="frm"]/div[1]/div[1]/div[1]/div[1]/ul[1]/li[2]')
         first_option.click()
 
-    def check_in_date(self):
+    def choose_dates(self):
         check_in = self.driver.find_element_by_css_selector('td[data-date="2021-11-22"]')
-        check_in.click()
-
-    def check_out_date(self):
         check_out = self.driver.find_element_by_css_selector('td[data-date="2021-11-23"]')
+        check_in.click()
         check_out.click()
+
 
     def click_search_button(self):
         search_button = self.driver.find_element_by_css_selector('button[type="submit"]')
@@ -115,15 +112,11 @@ class BeginningStage():
                 pages_remaining = False
                 print('this does not work')
 
-
-
 first_booking = BeginningStage()
 first_booking.get_webpage()
 first_booking.accept_cookies()
-first_booking.click_search_bar()
 first_booking.choose_option_1()
-first_booking.check_in_date()
-first_booking.check_out_date()
+first_booking.choose_dates()
 first_booking.click_search_button()
 # first_booking.apply_star_rating(2)
 # first_booking.budget_filters(25)
