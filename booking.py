@@ -30,6 +30,7 @@ class BeginningStage():
         self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
         # self.driver = webdriver.Chrome(options=options)
         options.add_argument("--start-maximized")
+        self.hotel_urls = []
 
 
     def get_webpage(self):
@@ -69,40 +70,16 @@ class BeginningStage():
         search_button = self.driver.find_element_by_css_selector('button[type="submit"]')
         search_button.click()
 
-    def _get_current_url(self):
-        current_url = self.driver.current_url
-        # print(current_url)
-
     def get_hotel_urls(self):
-        ignored_exceptions=(NoSuchElementException,StaleElementReferenceException)
-        # self.switch_to_tab()
-        # pages_remaining = True
-        # while pages_remaining:
-        try:
-            hotel_list = self.driver.find_elements_by_class_name('_814193827')
-            # hotel_container = WebDriverWait(self.driver, 10, ignored_exceptions=ignored_exceptions).until(EC.presence_of_element_located(
-            #         (By.ID, 'search_results_table')))
-            hotel_container = WebDriverWait(self.driver, 5, ignored_exceptions=ignored_exceptions).until(EC.presence_of_all_elements_located(
-                    (By.CSS_SELECTOR, 'div[data-testid="property-card"]')))
-            # hotel_container = self.driver.find_element_by_id('search_results_table')
-            # hotel_list = hotel_container.find_elements_by_css_selector('div[data-testid="property-card"]')
-        except NoSuchElementException:
-            print('this is not working :(')
+        hotel_container = self.driver.find_element_by_id('search_results_table')
+        hotel_list = hotel_container.find_elements_by_css_selector('div[data-testid="property-card"]')
+        #WebDriverWait(self.driver, 5, ignored_exceptions=ignored_exceptions).until(EC.presence_of_all_elements_located(
+                    #(By.CSS_SELECTOR, 'div[data-testid="property-card"]')))
+        
 
-        self.temp_list = []
-        for _ in hotel_list:
-            self.hotel_urls = []
-            for element in hotel_container:
-                hotel_url = element.find_element_by_tag_name('a').get_attribute('href')
-                # hotel_url = element.find_element_by_xpath('.//a').get_attribute('href')
-                self.temp_list.append(hotel_url)
-        # i = list(itertools.chain(*self.temp_list))
-        # self.hotel_urls.append(str(i))
-        self.hotel_urls = list(itertools.chain(self.temp_list))
-        print(self.hotel_urls)
-
-        # self.get_hotel_details()
-        # self.click_next_page()
+        for element in hotel_list:
+            hotel_url = element.find_element_by_xpath('.//a').get_attribute('href')
+            self.hotel_urls.append(hotel_url)
         # print(self.hotel_urls)
 
     # def create_csv(self):
@@ -166,16 +143,11 @@ class BeginningStage():
             #     pass
 
             hotel_detail_dict_list.append(hotel_detail_dict)
-            df = pd.json_normalize(hotel_detail_dict_list)
-                
-            df.to_csv('hotels.csv') 
+            
         print(hotel_detail_dict_list)
+        df = pd.json_normalize(hotel_detail_dict_list) 
+        df.to_csv('hotels.csv') 
 
-        #^-- don't know best way to get this to work for multiple pages\ 
-        # we would want it to print to the csv through each call of this\
-        # function to make sure it is appending the information each time\
-        # (on each new page, the dict and df would be wiped/start from scratch?)
-        # have tried df.to_csv('hotels.csv', mode = a, Header = None) to append but may get same issue.
 
     
 
@@ -189,7 +161,7 @@ class BeginningStage():
         pages_remaining = True
         # print(type(number_pages))
         # for _ in range(number_pages):
-        # while pages_remaining:
+        # while pages_remaining: - bring back when launching, comment out/remove line for_ in range(2) and next line
 
             # try:
             #     self.driver.execute_script("window.history.go(-1)")
@@ -233,7 +205,7 @@ first_booking.click_search_button()
 # first_booking.duplicate_tab()
 # first_booking.apply_star_rating(2)
 # first_booking.budget_filters(25)
-# first_booking.get_hotel_urls()
-# first_booking.get_hotel_details()
+first_booking.get_hotel_urls()
 first_booking.click_next_page()
+# first_booking.get_hotel_details()
 # first_booking.write_to_csv()
