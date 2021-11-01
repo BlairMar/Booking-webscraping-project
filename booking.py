@@ -44,6 +44,7 @@ class BeginningStage():
         accept = self.driver.find_element_by_id('onetrust-accept-btn-handler')
         accept.click()
 
+
     # def choose_option_1(self):
     #     search_bar = self.driver.find_element_by_id('ss')
     #     search_bar.click()
@@ -159,6 +160,7 @@ class BeginningStage():
         # # print(type(pages_remaining))
         # number_pages = int(pages_remaining)
         pages_remaining = True
+
         # print(type(number_pages))
         # for _ in range(number_pages):
         # while pages_remaining: - bring back when launching, comment out/remove line for_ in range(2) and next line
@@ -198,8 +200,10 @@ class BeginningStage():
 first_booking = BeginningStage()
 first_booking.get_webpage()
 first_booking.accept_cookies()
+
 # first_booking.choose_option_1()
 first_booking.select_search_bar('Algeria')
+
 first_booking.choose_dates()
 first_booking.click_search_button()
 # first_booking.duplicate_tab()
