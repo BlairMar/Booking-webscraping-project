@@ -114,8 +114,6 @@ class BeginningStage():
             hotel_detail_dict['Address'] = hotel_address.text    
             # hotel_detail_dict['Address'].append(hotel_address.text)
 
-
-
             # try:
             # hotel_deal_temp = self.driver.find_element_by_css_selector('span[class="bui-badge__text"]').text
             # hotel_detail_dict['Deals'] = hotel_deal_temp
@@ -146,7 +144,8 @@ class BeginningStage():
             hotel_detail_dict_list.append(hotel_detail_dict)
             
         print(hotel_detail_dict_list)
-        df = pd.json_normalize(hotel_detail_dict_list) 
+        df = pd.json_normalize(hotel_detail_dict_list)
+        print(f'This is the data frame:{df}') 
         df.to_csv('hotels.csv') 
 
 
