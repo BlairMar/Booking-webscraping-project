@@ -145,10 +145,8 @@ class BeginningStage():
             
         print(hotel_detail_dict_list)
         df = pd.json_normalize(hotel_detail_dict_list)
-        print(f'This is the data frame:{df}') 
-        df.to_csv('hotels.csv') 
-
-
+        df.to_csv('hotels.csv')
+        self.driver.quit()
     
 
     def click_next_page(self):
@@ -162,7 +160,7 @@ class BeginningStage():
 
         # print(type(number_pages))
         # for _ in range(number_pages):
-        # while pages_remaining: - bring back when launching, comment out/remove line for_ in range(2) and next line
+        while pages_remaining: #- bring back when launching, comment out/remove line for_ in range(2) and next line
 
             # try:
             #     self.driver.execute_script("window.history.go(-1)")
@@ -170,8 +168,8 @@ class BeginningStage():
             #     time.sleep(0.3)
             #     continue
 
-        for _ in range(2):
-            if page_count < 2:
+        # for _ in range(3):
+        #     if page_count < 3:
                 try:
                     self.get_hotel_urls()
                     # next_page = self.driver.find_element_by_xpath('//*[@id="search_results_table"]/div[6]/nav/ul/li[3]/a')
@@ -183,14 +181,14 @@ class BeginningStage():
                     next_page = WebDriverWait(self.driver, 5, ignored_exceptions=ignored_exceptions).until(EC.presence_of_element_located(
                     (By.CSS_SELECTOR, 'div[class="ce83a38554 _ea2496c5b"]')))
                     next_page.click()
-                    print('this works')
+                    print('Scraping Page:')
                     self.driver.refresh()
                     page_count += 1
                     print(page_count)
                 
                 except:
+                    pages_remaining = False
                     pass
-                    # pages_remaining = False
             
         self.get_hotel_details()    
 
