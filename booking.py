@@ -195,7 +195,45 @@ class BeginningStage():
             
         self.get_hotel_details()    
 
-        
+    def adults(self,adult_count):
+            #adults=self.driver.find_elements_by_xpath(class='bui-u-sr-only')
+            container=self.driver.find_element_by_xpath('//*[@id="xp__guests__toggle"]/span[2]')
+            container.click()
+            if adult_count > 2:
+                while adult_count !=2:
+                    add_adult=self.driver.find_element_by_xpath('//*[@id="xp__guests__inputs-container"]/div/div/div[1]/div/div[2]/button[2]')
+                    add_adult.click()
+                    adult_count -= 1
+            elif adult_count == 1:
+                add_adult=self.driver.find_element_by_xpath('//*[@id="xp__guests__inputs-container"]/div/div/div[1]/div/div[2]/button[1]')
+                add_adult.click()
+
+    def children(self,children_count=0,age1=0,age2=0,age3=0,age4=0,age5=0,age6=0,age7=0,age8=0,age9=0,age10=0):
+        if children_count>0:
+            child_ages=[age2+2,age3+2,age4+2,age5+2,age6+2,age7+2,age8+2,age9+2,age10+2]
+            children=self.driver.find_element_by_xpath('//*[@id="xp__guests__inputs-container"]/div/div/div[2]/div/div[2]/button[2]')
+            children.click()
+            choose_age=self.driver.find_element_by_xpath(f'//*[@id="xp__guests__inputs-container"]/div/div/div[3]/select/option[{age1+2}]')
+            choose_age.click()
+
+        if children_count>1:
+            count =1
+            for child in range(1,children_count):
+                age=child_ages[count-1]
+                count+=1
+                print(age)
+                children=self.driver.find_element_by_xpath('//*[@id="xp__guests__inputs-container"]/div/div/div[2]/div/div[2]/button[2]')
+                children.click()
+                choose_age=self.driver.find_element_by_xpath(f'//*[@id="xp__guests__inputs-container"]/div/div/div[3]/select[{count}]/option[{age}]')
+                choose_age.click()
+
+    
+    def rooms(self,number_of_rooms=1):
+        if number_of_rooms > 1:
+            while number_of_rooms !=1:
+                add_room=self.driver.find_element_by_xpath('//*[@id="xp__guests__inputs-container"]/div/div/div[4]/div/div[2]/button[2]/span')
+                add_room.click()
+                number_of_rooms -= 1        
 
 first_booking = BeginningStage()
 first_booking.get_webpage()
@@ -204,7 +242,11 @@ first_booking.accept_cookies()
 # first_booking.choose_option_1()
 first_booking.select_search_bar('Algeria')
 
+
 first_booking.choose_dates()
+first_booking.adults(2)
+first_booking.children(2,4,14)
+first_booking.rooms(2)
 first_booking.click_search_button()
 # first_booking.duplicate_tab()
 # first_booking.apply_star_rating(2)
