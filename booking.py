@@ -23,6 +23,8 @@ url = 'https://www.booking.com'
 # self.driver.get(url)
 
 class BeginningStage():
+    '''This class is used to scrape data from Booking.com
+    '''
 
     def __init__(self):
         options = webdriver.ChromeOptions()
