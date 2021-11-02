@@ -73,15 +73,13 @@ class BeginningStage():
 
     def get_hotel_urls(self):
         hotel_container = self.driver.find_element_by_id('search_results_table')
+        hotel_list = WebDriverWait(self.driver, 5).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'div[data-testid="property-card"]')))
         hotel_list = hotel_container.find_elements_by_css_selector('div[data-testid="property-card"]')
-        #WebDriverWait(self.driver, 5, ignored_exceptions=ignored_exceptions).until(EC.presence_of_all_elements_located(
-                    #(By.CSS_SELECTOR, 'div[data-testid="property-card"]')))
-        
 
         for element in hotel_list:
             hotel_url = element.find_element_by_xpath('.//a').get_attribute('href')
             self.hotel_urls.append(hotel_url)
-        # print(self.hotel_urls)
+        print(self.hotel_urls)
 
     # def create_csv(self):
     #     open('hotels.csv' Header=['Name','Price']
@@ -90,29 +88,25 @@ class BeginningStage():
         hotel_detail_dict_list = []
         # url_counter = 0
             # url_counter += 1
-        for idx in range(0, len(self.hotel_urls)):
+        for url in self.hotel_urls:
             hotel_detail_dict = {'Name' : None, 'Room_Type': None ,'Price' : None, 'Address': None, 'Deals': 'None', 
                             'Wifi': 0}
             # hotel_detail_dict = {'Name' : None, 'Room_Type': None ,'Price' : None, 'Address': None, 'Deals': 'None', 
             #             'Wifi': 0, 'Restaurant': 0, 'Room_Service': 0, 'Private_Parking': 0, 'Disabled_Facilities': 0,
             #             '24hr_FrontDesk': 0}
-            self.driver.get(self.hotel_urls[idx])
-
+            self.driver.get(url)
             hotel_name = self.driver.find_element_by_id("hp_hotel_name")
             hotel_detail_dict['Name'] = hotel_name.text
-            # hotel_detail_dict['Name'].append(hotel_name.text)
 
             hotel_room_type = self.driver.find_element_by_css_selector('span[class="hprt-roomtype-icon-link "]')
             hotel_detail_dict['Room_Type'] = hotel_room_type.text
-            # hotel_detail_dict['Room_Type'].append(hotel_room_type.text)
 
             hotel_price = self.driver.find_element_by_class_name('prco-valign-middle-helper')
             hotel_detail_dict['Price'] = hotel_price.text
-            # hotel_detail_dict['Price'].append(hotel_price.text)
 
             hotel_address = self.driver.find_element_by_css_selector('span[data-node_tt_id="location_score_tooltip"]')
             hotel_detail_dict['Address'] = hotel_address.text    
-            # hotel_detail_dict['Address'].append(hotel_address.text)
+ 
 
             # try:
             # hotel_deal_temp = self.driver.find_element_by_css_selector('span[class="bui-badge__text"]').text
@@ -144,9 +138,11 @@ class BeginningStage():
             hotel_detail_dict_list.append(hotel_detail_dict)
             
         print(hotel_detail_dict_list)
-        df = pd.json_normalize(hotel_detail_dict_list)
+        df = pd.json_normalize(hotel_detail_dict_list) 
         df.to_csv('hotels.csv')
         self.driver.quit()
+
+
     
 
     def click_next_page(self):
@@ -160,7 +156,7 @@ class BeginningStage():
 
         # print(type(number_pages))
         # for _ in range(number_pages):
-        while pages_remaining: #- bring back when launching, comment out/remove line for_ in range(2) and next line
+        # while pages_remaining: - bring back when launching, comment out/remove line for_ in range(2) and next line
 
             # try:
             #     self.driver.execute_script("window.history.go(-1)")
@@ -168,11 +164,10 @@ class BeginningStage():
             #     time.sleep(0.3)
             #     continue
 
-        # for _ in range(3):
-        #     if page_count < 3:
+        for _ in range(2):
+            if page_count < 2:
                 try:
-                    self.get_hotel_urls()
-                    # next_page = self.driver.find_element_by_xpath('//*[@id="search_results_table"]/div[6]/nav/ul/li[3]/a')
+                   # next_page = self.driver.find_element_by_xpath('//*[@id="search_results_table"]/div[6]/nav/ul/li[3]/a')
                     # next_page = WebDriverWait(self.driver, 5, ignored_exceptions=ignored_exceptions).until(EC.presence_of_element_located(
                     # (By.XPATH, '//*[@id="search_results_table"]/div[6]/nav/ul/li[3]/a')))
                     # next_page.click()
@@ -181,18 +176,58 @@ class BeginningStage():
                     next_page = WebDriverWait(self.driver, 5, ignored_exceptions=ignored_exceptions).until(EC.presence_of_element_located(
                     (By.CSS_SELECTOR, 'div[class="ce83a38554 _ea2496c5b"]')))
                     next_page.click()
-                    print('Scraping Page:')
+                    self.get_hotel_urls()
+                    print('this works')
                     self.driver.refresh()
                     page_count += 1
                     print(page_count)
+                    
                 
                 except:
-                    pages_remaining = False
                     pass
+                    # pages_remaining = False
             
         self.get_hotel_details()    
 
-        
+    def adults(self,adult_count):
+            #adults=self.driver.find_elements_by_xpath(class='bui-u-sr-only')
+            container=self.driver.find_element_by_xpath('//*[@id="xp__guests__toggle"]/span[2]')
+            container.click()
+            if adult_count > 2:
+                while adult_count !=2:
+                    add_adult=self.driver.find_element_by_xpath('//*[@id="xp__guests__inputs-container"]/div/div/div[1]/div/div[2]/button[2]')
+                    add_adult.click()
+                    adult_count -= 1
+            elif adult_count == 1:
+                add_adult=self.driver.find_element_by_xpath('//*[@id="xp__guests__inputs-container"]/div/div/div[1]/div/div[2]/button[1]')
+                add_adult.click()
+
+    def children(self,children_count=0,age1=0,age2=0,age3=0,age4=0,age5=0,age6=0,age7=0,age8=0,age9=0,age10=0):
+        if children_count>0:
+            child_ages=[age2+2,age3+2,age4+2,age5+2,age6+2,age7+2,age8+2,age9+2,age10+2]
+            children=self.driver.find_element_by_xpath('//*[@id="xp__guests__inputs-container"]/div/div/div[2]/div/div[2]/button[2]')
+            children.click()
+            choose_age=self.driver.find_element_by_xpath(f'//*[@id="xp__guests__inputs-container"]/div/div/div[3]/select/option[{age1+2}]')
+            choose_age.click()
+
+        if children_count>1:
+            count =1
+            for child in range(1,children_count):
+                age=child_ages[count-1]
+                count+=1
+                print(age)
+                children=self.driver.find_element_by_xpath('//*[@id="xp__guests__inputs-container"]/div/div/div[2]/div/div[2]/button[2]')
+                children.click()
+                choose_age=self.driver.find_element_by_xpath(f'//*[@id="xp__guests__inputs-container"]/div/div/div[3]/select[{count}]/option[{age}]')
+                choose_age.click()
+
+    
+    def rooms(self,number_of_rooms=1):
+        if number_of_rooms > 1:
+            while number_of_rooms !=1:
+                add_room=self.driver.find_element_by_xpath('//*[@id="xp__guests__inputs-container"]/div/div/div[4]/div/div[2]/button[2]/span')
+                add_room.click()
+                number_of_rooms -= 1        
 
 first_booking = BeginningStage()
 first_booking.get_webpage()
@@ -201,12 +236,16 @@ first_booking.accept_cookies()
 # first_booking.choose_option_1()
 first_booking.select_search_bar('Algeria')
 
+
 first_booking.choose_dates()
+first_booking.adults(2)
+first_booking.children(2,4,14)
+first_booking.rooms(2)
 first_booking.click_search_button()
 # first_booking.duplicate_tab()
 # first_booking.apply_star_rating(2)
 # first_booking.budget_filters(25)
 first_booking.get_hotel_urls()
 first_booking.click_next_page()
-# first_booking.get_hotel_details()
+#first_booking.get_hotel_details()
 # first_booking.write_to_csv()
