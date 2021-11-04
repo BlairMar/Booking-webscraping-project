@@ -36,6 +36,10 @@ class BeginningStage():
 
 
     def get_webpage(self):
+        '''This function is used to fetch a webpage using ChromeDriver.
+        
+        Returns:
+            webpage'''
         url = 'https://www.booking.com'
         webpage = self.driver.get(url)
         time.sleep(3)
@@ -43,17 +47,23 @@ class BeginningStage():
 
 
     def accept_cookies(self):
+        '''This function is used to click the 'accept cookies' button that appears on the webpage'''
         accept = self.driver.find_element_by_id('onetrust-accept-btn-handler')
         accept.click()
 
 
-    # def choose_option_1(self):
-    #     search_bar = self.driver.find_element_by_id('ss')
-    #     search_bar.click()
-    #     first_option = self.driver.find_element_by_xpath('//*[@id="frm"]/div[1]/div[1]/div[1]/div[1]/ul[1]/li[2]')
-    #     first_option.click()
+    def choose_option_1(self):
+    '''This function is used to click the first option that appears when the Booking.com search bar is clicked'''
+        search_bar = self.driver.find_element_by_id('ss')
+        search_bar.click()
+        first_option = self.driver.find_element_by_xpath('//*[@id="frm"]/div[1]/div[1]/div[1]/div[1]/ul[1]/li[2]')
+        first_option.click()
 
     def select_search_bar(self, destination):
+        '''This function is used to select the search bar and search for the destination provided.
+        
+        Attributes:
+            destination: str, typed in by user for entry into the search bar'''
         ignored_exceptions=(NoSuchElementException,StaleElementReferenceException)
         search_bar = self.driver.find_element_by_id('ss')
         search_bar.clear()
@@ -63,6 +73,8 @@ class BeginningStage():
         first_result.click()
 
     def choose_dates(self):
+        '''This function is used to choose dates (auto set to 22nd and 23rd November)'''
+        # TODO: set this so dates can be chosen by user
         check_in = self.driver.find_element_by_css_selector('td[data-date="2021-11-22"]')
         check_out = self.driver.find_element_by_css_selector('td[data-date="2021-11-23"]')
         check_in.click()
