@@ -87,15 +87,13 @@ class BeginningStage():
 
     def get_hotel_urls(self):
         hotel_container = self.driver.find_element_by_id('search_results_table')
+        hotel_list = WebDriverWait(self.driver, 5).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'div[data-testid="property-card"]')))
         hotel_list = hotel_container.find_elements_by_css_selector('div[data-testid="property-card"]')
-        #WebDriverWait(self.driver, 5, ignored_exceptions=ignored_exceptions).until(EC.presence_of_all_elements_located(
-                    #(By.CSS_SELECTOR, 'div[data-testid="property-card"]')))
-        
 
         for element in hotel_list:
             hotel_url = element.find_element_by_xpath('.//a').get_attribute('href')
             self.hotel_urls.append(hotel_url)
-        # print(self.hotel_urls)
+        print(self.hotel_urls)
 
     # def create_csv(self):
     #     open('hotels.csv' Header=['Name','Price']
@@ -104,31 +102,25 @@ class BeginningStage():
         hotel_detail_dict_list = []
         # url_counter = 0
             # url_counter += 1
-        for idx in range(0, len(self.hotel_urls)):
+        for url in self.hotel_urls:
             hotel_detail_dict = {'Name' : None, 'Room_Type': None ,'Price' : None, 'Address': None, 'Deals': 'None', 
                             'Wifi': 0}
             # hotel_detail_dict = {'Name' : None, 'Room_Type': None ,'Price' : None, 'Address': None, 'Deals': 'None', 
             #             'Wifi': 0, 'Restaurant': 0, 'Room_Service': 0, 'Private_Parking': 0, 'Disabled_Facilities': 0,
             #             '24hr_FrontDesk': 0}
-            self.driver.get(self.hotel_urls[idx])
-
+            self.driver.get(url)
             hotel_name = self.driver.find_element_by_id("hp_hotel_name")
             hotel_detail_dict['Name'] = hotel_name.text
-            # hotel_detail_dict['Name'].append(hotel_name.text)
 
             hotel_room_type = self.driver.find_element_by_css_selector('span[class="hprt-roomtype-icon-link "]')
             hotel_detail_dict['Room_Type'] = hotel_room_type.text
-            # hotel_detail_dict['Room_Type'].append(hotel_room_type.text)
 
             hotel_price = self.driver.find_element_by_class_name('prco-valign-middle-helper')
             hotel_detail_dict['Price'] = hotel_price.text
-            # hotel_detail_dict['Price'].append(hotel_price.text)
 
             hotel_address = self.driver.find_element_by_css_selector('span[data-node_tt_id="location_score_tooltip"]')
             hotel_detail_dict['Address'] = hotel_address.text    
-            # hotel_detail_dict['Address'].append(hotel_address.text)
-
-
+ 
 
             # try:
             # hotel_deal_temp = self.driver.find_element_by_css_selector('span[class="bui-badge__text"]').text
@@ -161,7 +153,8 @@ class BeginningStage():
             
         print(hotel_detail_dict_list)
         df = pd.json_normalize(hotel_detail_dict_list) 
-        df.to_csv('hotels.csv') 
+        df.to_csv('hotels.csv')
+        self.driver.quit()
 
 
     
@@ -188,8 +181,7 @@ class BeginningStage():
         for _ in range(2):
             if page_count < 2:
                 try:
-                    self.get_hotel_urls()
-                    # next_page = self.driver.find_element_by_xpath('//*[@id="search_results_table"]/div[6]/nav/ul/li[3]/a')
+                   # next_page = self.driver.find_element_by_xpath('//*[@id="search_results_table"]/div[6]/nav/ul/li[3]/a')
                     # next_page = WebDriverWait(self.driver, 5, ignored_exceptions=ignored_exceptions).until(EC.presence_of_element_located(
                     # (By.XPATH, '//*[@id="search_results_table"]/div[6]/nav/ul/li[3]/a')))
                     # next_page.click()
@@ -198,10 +190,12 @@ class BeginningStage():
                     next_page = WebDriverWait(self.driver, 5, ignored_exceptions=ignored_exceptions).until(EC.presence_of_element_located(
                     (By.CSS_SELECTOR, 'div[class="ce83a38554 _ea2496c5b"]')))
                     next_page.click()
+                    self.get_hotel_urls()
                     print('this works')
                     self.driver.refresh()
                     page_count += 1
                     print(page_count)
+                    
                 
                 except:
                     pass
@@ -267,5 +261,5 @@ first_booking.click_search_button()
 # first_booking.budget_filters(25)
 first_booking.get_hotel_urls()
 first_booking.click_next_page()
-# first_booking.get_hotel_details()
+#first_booking.get_hotel_details()
 # first_booking.write_to_csv()
