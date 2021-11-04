@@ -214,6 +214,10 @@ class BeginningStage():
         self.get_hotel_details()    
 
     def adults(self,adult_count):
+        '''This function is used to define the number of adults to be included in the search
+            
+            Attributes:
+                adult_count: int, the number of adults to include in the search'''
             #adults=self.driver.find_elements_by_xpath(class='bui-u-sr-only')
             container=self.driver.find_element_by_xpath('//*[@id="xp__guests__toggle"]/span[2]')
             container.click()
@@ -227,6 +231,14 @@ class BeginningStage():
                 add_adult.click()
 
     def children(self,children_count=0,age1=0,age2=0,age3=0,age4=0,age5=0,age6=0,age7=0,age8=0,age9=0,age10=0):
+        '''This function is used to define the number of children and their ages to be included in the search. Number of children restricted to 10.
+            
+            Attributes:
+                children_count: int, the number of children to include in the search
+                age(n): int, the age of each child where n is the number of children
+            
+            Example:
+            ".children(2,4,12)" includes 2 children aged 4 and 12 on the search'''
         if children_count>0:
             child_ages=[age2+2,age3+2,age4+2,age5+2,age6+2,age7+2,age8+2,age9+2,age10+2]
             children=self.driver.find_element_by_xpath('//*[@id="xp__guests__inputs-container"]/div/div/div[2]/div/div[2]/button[2]')
@@ -247,6 +259,10 @@ class BeginningStage():
 
     
     def rooms(self,number_of_rooms=1):
+        '''This function is used to define the number of rooms to be included in the search
+            
+            Attributes:
+                number_of_rooms: int, the number of rooms to include in the search'''
         if number_of_rooms > 1:
             while number_of_rooms !=1:
                 add_room=self.driver.find_element_by_xpath('//*[@id="xp__guests__inputs-container"]/div/div/div[4]/div/div[2]/button[2]/span')
