@@ -82,10 +82,15 @@ class BeginningStage():
 
 
     def click_search_button(self):
+         '''This function clicks the search button'''
         search_button = self.driver.find_element_by_css_selector('button[type="submit"]')
         search_button.click()
 
     def get_hotel_urls(self):
+        '''This function is used to retrieve a list of hotel URLs from the search result container.
+        
+        Returns:
+            list: list of hotel URLs'''T
         hotel_container = self.driver.find_element_by_id('search_results_table')
         hotel_list = WebDriverWait(self.driver, 5).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'div[data-testid="property-card"]')))
         hotel_list = hotel_container.find_elements_by_css_selector('div[data-testid="property-card"]')
@@ -99,6 +104,10 @@ class BeginningStage():
     #     open('hotels.csv' Header=['Name','Price']
 
     def get_hotel_details(self):
+        '''This function is used to retrieve individual hotel details.
+
+            Returns:
+                list: list of dictionaries containing individual hotel details '''
         hotel_detail_dict_list = []
         # url_counter = 0
             # url_counter += 1
@@ -160,6 +169,7 @@ class BeginningStage():
     
 
     def click_next_page(self):
+        '''This function is used to click the next page of search results'''
         ignored_exceptions=(NoSuchElementException,StaleElementReferenceException)
         page_count = 0
         # pages_remaining = self.driver.find_element_by_xpath('//*[@id="search_results_table"]/div[1]/div/div/div/div[6]/div[2]/nav/div/div[2]/ol/li[6]').get_attribute('innerText')
