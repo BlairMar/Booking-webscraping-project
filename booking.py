@@ -23,6 +23,8 @@ url = 'https://www.booking.com'
 # self.driver.get(url)
 
 class BeginningStage():
+    '''This class is used to scrape data from Booking.com
+    '''
 
     def __init__(self):
         options = webdriver.ChromeOptions()
@@ -34,6 +36,10 @@ class BeginningStage():
 
 
     def get_webpage(self):
+        '''This function is used to fetch a webpage using ChromeDriver.
+        
+        Returns:
+            webpage'''
         url = 'https://www.booking.com'
         webpage = self.driver.get(url)
         time.sleep(3)
@@ -41,17 +47,23 @@ class BeginningStage():
 
 
     def accept_cookies(self):
+        '''This function is used to click the 'accept cookies' button that appears on the webpage'''
         accept = self.driver.find_element_by_id('onetrust-accept-btn-handler')
         accept.click()
 
 
-    # def choose_option_1(self):
-    #     search_bar = self.driver.find_element_by_id('ss')
-    #     search_bar.click()
-    #     first_option = self.driver.find_element_by_xpath('//*[@id="frm"]/div[1]/div[1]/div[1]/div[1]/ul[1]/li[2]')
-    #     first_option.click()
+    def choose_option_1(self):
+    '''This function is used to click the first option that appears when the Booking.com search bar is clicked'''
+        search_bar = self.driver.find_element_by_id('ss')
+        search_bar.click()
+        first_option = self.driver.find_element_by_xpath('//*[@id="frm"]/div[1]/div[1]/div[1]/div[1]/ul[1]/li[2]')
+        first_option.click()
 
     def select_search_bar(self, destination):
+        '''This function is used to select the search bar and search for the destination provided.
+        
+        Attributes:
+            destination: str, typed in by user for entry into the search bar'''
         ignored_exceptions=(NoSuchElementException,StaleElementReferenceException)
         search_bar = self.driver.find_element_by_id('ss')
         search_bar.clear()
@@ -61,6 +73,8 @@ class BeginningStage():
         first_result.click()
 
     def choose_dates(self):
+        '''This function is used to choose dates (auto set to 22nd and 23rd November)'''
+        # TODO: set this so dates can be chosen by user
         check_in = self.driver.find_element_by_css_selector('td[data-date="2021-11-22"]')
         check_out = self.driver.find_element_by_css_selector('td[data-date="2021-11-23"]')
         check_in.click()
@@ -68,10 +82,15 @@ class BeginningStage():
 
 
     def click_search_button(self):
+         '''This function clicks the search button'''
         search_button = self.driver.find_element_by_css_selector('button[type="submit"]')
         search_button.click()
 
     def get_hotel_urls(self):
+        '''This function is used to retrieve a list of hotel URLs from the search result container.
+        
+        Returns:
+            list: list of hotel URLs'''T
         hotel_container = self.driver.find_element_by_id('search_results_table')
         hotel_list = WebDriverWait(self.driver, 5).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'div[data-testid="property-card"]')))
         hotel_list = hotel_container.find_elements_by_css_selector('div[data-testid="property-card"]')
@@ -85,6 +104,10 @@ class BeginningStage():
     #     open('hotels.csv' Header=['Name','Price']
 
     def get_hotel_details(self):
+        '''This function is used to retrieve individual hotel details.
+
+            Returns:
+                list: list of dictionaries containing individual hotel details '''
         hotel_detail_dict_list = []
         # url_counter = 0
             # url_counter += 1
@@ -146,6 +169,7 @@ class BeginningStage():
     
 
     def click_next_page(self):
+        '''This function is used to click the next page of search results'''
         ignored_exceptions=(NoSuchElementException,StaleElementReferenceException)
         page_count = 0
         # pages_remaining = self.driver.find_element_by_xpath('//*[@id="search_results_table"]/div[1]/div/div/div/div[6]/div[2]/nav/div/div[2]/ol/li[6]').get_attribute('innerText')
@@ -190,6 +214,10 @@ class BeginningStage():
         self.get_hotel_details()    
 
     def adults(self,adult_count):
+        '''This function is used to define the number of adults to be included in the search
+            
+            Attributes:
+                adult_count: int, the number of adults to include in the search'''
             #adults=self.driver.find_elements_by_xpath(class='bui-u-sr-only')
             container=self.driver.find_element_by_xpath('//*[@id="xp__guests__toggle"]/span[2]')
             container.click()
@@ -203,6 +231,14 @@ class BeginningStage():
                 add_adult.click()
 
     def children(self,children_count=0,age1=0,age2=0,age3=0,age4=0,age5=0,age6=0,age7=0,age8=0,age9=0,age10=0):
+        '''This function is used to define the number of children and their ages to be included in the search. Number of children restricted to 10.
+            
+            Attributes:
+                children_count: int, the number of children to include in the search
+                age(n): int, the age of each child where n is the number of children
+            
+            Example:
+            ".children(2,4,12)" includes 2 children aged 4 and 12 on the search'''
         if children_count>0:
             child_ages=[age2+2,age3+2,age4+2,age5+2,age6+2,age7+2,age8+2,age9+2,age10+2]
             children=self.driver.find_element_by_xpath('//*[@id="xp__guests__inputs-container"]/div/div/div[2]/div/div[2]/button[2]')
@@ -223,6 +259,10 @@ class BeginningStage():
 
     
     def rooms(self,number_of_rooms=1):
+        '''This function is used to define the number of rooms to be included in the search
+            
+            Attributes:
+                number_of_rooms: int, the number of rooms to include in the search'''
         if number_of_rooms > 1:
             while number_of_rooms !=1:
                 add_room=self.driver.find_element_by_xpath('//*[@id="xp__guests__inputs-container"]/div/div/div[4]/div/div[2]/button[2]/span')
