@@ -33,6 +33,7 @@ class BeginningStage():
         # self.driver = webdriver.Chrome(options=options)
         options.add_argument("--start-maximized")
         self.hotel_urls = []
+        self.page_counter = 0
 
 
     def get_webpage(self):
@@ -98,7 +99,10 @@ class BeginningStage():
         for element in hotel_list:
             hotel_url = element.find_element_by_xpath('.//a').get_attribute('href')
             self.hotel_urls.append(hotel_url)
-        print(self.hotel_urls)
+        #print(self.hotel_urls)
+        self.page_counter += 1
+        print(f'Pages visited: {self.page_counter}')
+        print(len(self.hotel_urls))
 
     # def create_csv(self):
     #     open('hotels.csv' Header=['Name','Price']
@@ -178,9 +182,9 @@ class BeginningStage():
         # number_pages = int(pages_remaining)
         pages_remaining = True
 
-        # print(type(number_pages))
+        # # print(type(number_pages))
         # for _ in range(number_pages):
-        # while pages_remaining: - bring back when launching, comment out/remove line for_ in range(2) and next line
+        while pages_remaining: #- bring back when launching, comment out/remove line for_ in range(2) and next line
 
             # try:
             #     self.driver.execute_script("window.history.go(-1)")
@@ -188,8 +192,8 @@ class BeginningStage():
             #     time.sleep(0.3)
             #     continue
 
-        for _ in range(2):
-            if page_count < 2:
+        # for _ in range(40):
+        #     if page_count < 40:
                 try:
                    # next_page = self.driver.find_element_by_xpath('//*[@id="search_results_table"]/div[6]/nav/ul/li[3]/a')
                     # next_page = WebDriverWait(self.driver, 5, ignored_exceptions=ignored_exceptions).until(EC.presence_of_element_located(
@@ -201,15 +205,14 @@ class BeginningStage():
                     (By.CSS_SELECTOR, 'div[class="ce83a38554 _ea2496c5b"]')))
                     next_page.click()
                     self.get_hotel_urls()
-                    print('this works')
+                    #print('this works')
                     self.driver.refresh()
-                    page_count += 1
-                    print(page_count)
+                    #page_count += 1
+                    #print(page_count)
                     
                 
                 except:
-                    pass
-                    # pages_remaining = False
+                    pages_remaining = False
             
         self.get_hotel_details()    
 
@@ -274,13 +277,13 @@ first_booking.get_webpage()
 first_booking.accept_cookies()
 
 # first_booking.choose_option_1()
-first_booking.select_search_bar('Algeria')
+first_booking.select_search_bar('Spain')
 
 
 first_booking.choose_dates()
 first_booking.adults(2)
-first_booking.children(2,4,14)
-first_booking.rooms(2)
+#first_booking.children(2,4,14)
+#first_booking.rooms(2)
 first_booking.click_search_button()
 # first_booking.duplicate_tab()
 # first_booking.apply_star_rating(2)
