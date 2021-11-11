@@ -92,30 +92,55 @@ class BeginningStage():
         
         Returns:
             list: list of hotel URLs'''
+        time.sleep(5)
+        # should work instead of needing sleep each round, but for some reason doesn't - sometimes elements are stale again?
+        # try:
+        #     WebDriverWait(self.driver,5).until(EC.presence_of_element_located((By.XPATH,'/html/body/div[3]/div/div[3]/div[1]/div[1]/div[3]/div[4]/div[1]/div/div/div/div[5]/div[27]/div[1]/div[2]/div/div[4]/div/div[1]/div/div/div/div[3]/div[1]')))
+        #     WebDriverWait(self.driver,10).until_not(EC.presence_of_element_located((By.XPATH,'/html/body/div[3]/div/div[3]/div[1]/div[1]/div[3]/div[4]/div[1]/div/div/div/div[5]/div[27]/div[1]/div[2]/div/div[4]/div/div[1]/div/div/div/div[3]/div[1]')))
+
+        # except TimeoutException:
+        #     pass
+
+        # finally:
         hotel_container = self.driver.find_element_by_id('search_results_table')
-        hotel_list = WebDriverWait(self.driver, 5).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'div[data-testid="property-card"]')))
         hotel_list = hotel_container.find_elements_by_css_selector('div[data-testid="property-card"]')
 
         for element in hotel_list:
-            hotel_url = element.find_element_by_xpath('.//a').get_attribute('href')
+            hotel_url = element.find_element_by_xpath('.//a')
+            hotel_url = hotel_url.get_attribute('href')
             self.hotel_urls.append(hotel_url)
-        #print(self.hotel_urls)
         self.page_counter += 1
         print(f'Pages visited: {self.page_counter}')
         print(len(self.hotel_urls))
 
-    # def create_csv(self):
-    #     open('hotels.csv' Header=['Name','Price']
+        # for checking errors:
+        # for i,element in enumerate(hotel_list):
+            
+        #     print(i)
+        #     print(element)
+        #     hotel_url = element.find_element_by_xpath('.//a')
+        #     print(hotel_url.text)
+        #     hotel_url = hotel_url.get_attribute('href')
+        #     print(hotel_url)
+        #     print()
+        #     self.hotel_urls.append(hotel_url)
+        # #print(self.hotel_urls)
+        # self.page_counter += 1
+        # print(f'Pages visited: {self.page_counter}')
+        # print(len(self.hotel_urls))
+
 
     def get_hotel_details(self):
         '''This function is used to retrieve individual hotel details.
 
             Returns:
                 list: list of dictionaries containing individual hotel details '''
+        print('gathering hotel data')
         hotel_detail_dict_list = []
         # url_counter = 0
             # url_counter += 1
-        for url in self.hotel_urls:
+        for i, url in enumerate(self.hotel_urls):
+            print(i+1)
             hotel_detail_dict = {'Name' : None, 'Room_Type': None ,'Price' : None, 'Address': None, 'Deals': 'None', 
                             'Wifi': 0}
             # hotel_detail_dict = {'Name' : None, 'Room_Type': None ,'Price' : None, 'Address': None, 'Deals': 'None', 
@@ -175,45 +200,34 @@ class BeginningStage():
     def click_next_page(self):
         '''This function is used to click the next page of search results'''
         ignored_exceptions=(NoSuchElementException,StaleElementReferenceException)
-        page_count = 0
-        # pages_remaining = self.driver.find_element_by_xpath('//*[@id="search_results_table"]/div[1]/div/div/div/div[6]/div[2]/nav/div/div[2]/ol/li[6]').get_attribute('innerText')
-        # print(pages_remaining)
-        # # print(type(pages_remaining))
-        # number_pages = int(pages_remaining)
         pages_remaining = True
+        page_count = 0
 
-        # # print(type(number_pages))
-        # for _ in range(number_pages):
-        while pages_remaining: #- bring back when launching, comment out/remove line for_ in range(2) and next line
+        # ##USE TO SCRAPE ALL PAGES
+        # while pages_remaining:
+        #     try:
+        #         time.sleep(3)
+        #         next_page = WebDriverWait(self.driver, 5, ignored_exceptions=ignored_exceptions).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div[class="ce83a38554 _ea2496c5b"]')))
+        #         next_page.click()
+        #         self.get_hotel_urls()
+        #         self.driver.refresh()
+        #     except:
+        #         pages_remaining = False
 
-            # try:
-            #     self.driver.execute_script("window.history.go(-1)")
-            # except NoSuchElementException:
-            #     time.sleep(0.3)
-            #     continue
-
-        # for _ in range(40):
-        #     if page_count < 40:
-                try:
-                   # next_page = self.driver.find_element_by_xpath('//*[@id="search_results_table"]/div[6]/nav/ul/li[3]/a')
-                    # next_page = WebDriverWait(self.driver, 5, ignored_exceptions=ignored_exceptions).until(EC.presence_of_element_located(
-                    # (By.XPATH, '//*[@id="search_results_table"]/div[6]/nav/ul/li[3]/a')))
-                    # next_page.click()
-                    # next_page = WebDriverWait(self.driver, 5, ignored_exceptions=ignored_exceptions).until(EC.presence_of_element_located(
-                    # (By.CSS_SELECTOR, 'button[aria-label="Next page"]')))
-                    next_page = WebDriverWait(self.driver, 5, ignored_exceptions=ignored_exceptions).until(EC.presence_of_element_located(
-                    (By.CSS_SELECTOR, 'div[class="ce83a38554 _ea2496c5b"]')))
+        #USE TO TEST SMALL RANGE OF PAGES
+        for page in range(2):
+            if page_count < 2:
+                #try:
+                    time.sleep(3)
+                    next_page = WebDriverWait(self.driver, 5, ignored_exceptions=ignored_exceptions).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div[class="ce83a38554 _ea2496c5b"]')))
                     next_page.click()
                     self.get_hotel_urls()
-                    #print('this works')
                     self.driver.refresh()
-                    #page_count += 1
-                    #print(page_count)
-                    
-                
-                except:
-                    pages_remaining = False
-            
+                    page_count += 1
+                # #except:
+                #     pass
+
+
         self.get_hotel_details()    
 
     def adults(self,adult_count):
