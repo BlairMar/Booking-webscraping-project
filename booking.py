@@ -16,6 +16,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 import itertools
 import boto3
 import json
+import tempfile
 
 
 
@@ -192,9 +193,13 @@ class BeginningStage():
             #     pass
 
             hotel_detail_dict_list.append(hotel_detail_dict)
-            with open(f'hotel_jsons/hotel{i+1}.json','w') as file:
-                json.dump(hotel_detail_dict,file)
-                self.s3_client.upload_file(f'hotel_jsons/hotel{i+1}.json','bookingbucket',f'hotel_jsons/hotel{i+1}.json')
+            with tempfile.TemporaryDirectory() as temp_dir:
+                with open(f'{temp_dir}/hotel_dict{i+1}.png','w') as file:
+                    json.dump(hotel_detail_dict,file)
+                    self.s3_client.upload_file(f'{temp_dir}/hotel_dict{i+1}.png', 'bookingbucket', f'hotel_jsons/hotel{i+1}.json')
+            # with open(f'hotel_jsons/hotel{i+1}.json','w') as file:
+            #     json.dump(hotel_detail_dict,file)
+            #     self.s3_client.upload_file(f'hotel_jsons/hotel{i+1}.json','bookingbucket',f'hotel_jsons/hotel{i+1}.json')
             
         print('gathered all hotel data')
         df = pd.json_normalize(hotel_detail_dict_list) 
@@ -221,8 +226,8 @@ class BeginningStage():
         #         pages_remaining = False
 
         #USE TO TEST SMALL RANGE OF PAGES
-        for page in range(2):
-            if page_count < 2:
+        for page in range(1):
+            if page_count < 1:
                 #try:
                     time.sleep(3)
                     next_page = WebDriverWait(self.driver, 5, ignored_exceptions=ignored_exceptions).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div[class="ce83a38554 _ea2496c5b"]')))
