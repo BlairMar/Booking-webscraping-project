@@ -14,6 +14,9 @@ import pandas as pd
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 import itertools
+import boto3
+import json
+
 
 
 
@@ -34,6 +37,7 @@ class BeginningStage():
         options.add_argument("--start-maximized")
         self.hotel_urls = []
         self.page_counter = 0
+        self.s3_client = boto3.client('s3')
 
 
     def get_webpage(self):
@@ -188,13 +192,14 @@ class BeginningStage():
             #     pass
 
             hotel_detail_dict_list.append(hotel_detail_dict)
+            with open(f'hotel_jsons/hotel{i+1}.json','w') as file:
+                json.dump(hotel_detail_dict,file)
             
         print(hotel_detail_dict_list)
         df = pd.json_normalize(hotel_detail_dict_list) 
         df.to_csv('hotels.csv')
         self.driver.quit()
-
-
+        self.s3_client.upload_file('hotels.csv', 'bookingbucket', 'hotels.csv')
     
 
     def click_next_page(self):
