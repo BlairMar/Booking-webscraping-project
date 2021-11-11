@@ -194,8 +194,9 @@ class BeginningStage():
             hotel_detail_dict_list.append(hotel_detail_dict)
             with open(f'hotel_jsons/hotel{i+1}.json','w') as file:
                 json.dump(hotel_detail_dict,file)
+                self.s3_client.upload_file(f'hotel_jsons/hotel{i+1}.json','bookingbucket',f'hotel_jsons/hotel{i+1}.json')
             
-        print(hotel_detail_dict_list)
+        print('gathered all hotel data')
         df = pd.json_normalize(hotel_detail_dict_list) 
         df.to_csv('hotels.csv')
         self.driver.quit()
