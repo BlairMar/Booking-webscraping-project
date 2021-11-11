@@ -226,8 +226,6 @@ class BeginningStage():
                     page_count += 1
                 # #except:
                 #     pass
-
-
         self.get_hotel_details()    
 
     def adults(self,adult_count):
