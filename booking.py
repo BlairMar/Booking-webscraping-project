@@ -14,6 +14,10 @@ import pandas as pd
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 import itertools
+import boto3
+import json
+import tempfile
+
 
 
 
@@ -34,6 +38,7 @@ class BeginningStage():
         options.add_argument("--start-maximized")
         self.hotel_urls = []
         self.page_counter = 0
+        self.s3_client = boto3.client('s3')
 
 
     def get_webpage(self):
@@ -147,17 +152,27 @@ class BeginningStage():
             #             'Wifi': 0, 'Restaurant': 0, 'Room_Service': 0, 'Private_Parking': 0, 'Disabled_Facilities': 0,
             #             '24hr_FrontDesk': 0}
             self.driver.get(url)
-            hotel_name = self.driver.find_element_by_id("hp_hotel_name")
-            hotel_detail_dict['Name'] = hotel_name.text
+            try:
+                hotel_name = self.driver.find_element_by_id("hp_hotel_name")
+                hotel_detail_dict['Name'] = hotel_name.text
+            except:
+                 hotel_detail_dict['Name'] = 'Name Not Found'           
+            try:
+                hotel_room_type = self.driver.find_element_by_css_selector('span[class="hprt-roomtype-icon-link "]')
+                hotel_detail_dict['Room_Type'] = hotel_room_type.text
+            except:
+                hotel_detail_dict['Room_Type'] = 'Room Type Not Found'
 
-            hotel_room_type = self.driver.find_element_by_css_selector('span[class="hprt-roomtype-icon-link "]')
-            hotel_detail_dict['Room_Type'] = hotel_room_type.text
-
-            hotel_price = self.driver.find_element_by_class_name('prco-valign-middle-helper')
-            hotel_detail_dict['Price'] = hotel_price.text
-
-            hotel_address = self.driver.find_element_by_css_selector('span[data-node_tt_id="location_score_tooltip"]')
-            hotel_detail_dict['Address'] = hotel_address.text    
+            try:
+                hotel_price = self.driver.find_element_by_class_name('prco-valign-middle-helper')
+                hotel_detail_dict['Price'] = hotel_price.text
+            except:
+                hotel_detail_dict['Price'] = 'Price Not Found'
+            try:    
+                hotel_address = self.driver.find_element_by_css_selector('span[data-node_tt_id="location_score_tooltip"]')
+                hotel_detail_dict['Address'] = hotel_address.text  
+            except:
+                hotel_detail_dict['Address'] = 'Address Not Found'   
  
 
             # try:
@@ -188,13 +203,19 @@ class BeginningStage():
             #     pass
 
             hotel_detail_dict_list.append(hotel_detail_dict)
+            with tempfile.TemporaryDirectory() as temp_dir:
+                with open(f'{temp_dir}/hotel_dict{i+1}.png','w') as file:
+                    json.dump(hotel_detail_dict,file)
+                    self.s3_client.upload_file(f'{temp_dir}/hotel_dict{i+1}.json', 'bookingbucket', f'hotel_jsons/hotel{i+1}.json')
+            # with open(f'hotel_jsons/hotel{i+1}.json','w') as file:
+            #     json.dump(hotel_detail_dict,file)
+            #     self.s3_client.upload_file(f'hotel_jsons/hotel{i+1}.json','bookingbucket',f'hotel_jsons/hotel{i+1}.json')
             
-        print(hotel_detail_dict_list)
+        print('gathered all hotel data')
         df = pd.json_normalize(hotel_detail_dict_list) 
         df.to_csv('hotels.csv')
         self.driver.quit()
-
-
+        self.s3_client.upload_file('hotels.csv', 'bookingbucket', 'hotels.csv')
     
 
     def click_next_page(self):
@@ -203,7 +224,7 @@ class BeginningStage():
         pages_remaining = True
         page_count = 0
 
-        # ##USE TO SCRAPE ALL PAGES
+        # # ##USE TO SCRAPE ALL PAGES
         # while pages_remaining:
         #     try:
         #         time.sleep(3)
@@ -215,8 +236,8 @@ class BeginningStage():
         #         pages_remaining = False
 
         #USE TO TEST SMALL RANGE OF PAGES
-        for page in range(2):
-            if page_count < 2:
+        for page in range(0):
+            if page_count < 1:
                 #try:
                     time.sleep(3)
                     next_page = WebDriverWait(self.driver, 5, ignored_exceptions=ignored_exceptions).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div[class="ce83a38554 _ea2496c5b"]')))
@@ -226,8 +247,6 @@ class BeginningStage():
                     page_count += 1
                 # #except:
                 #     pass
-
-
         self.get_hotel_details()    
 
     def adults(self,adult_count):
