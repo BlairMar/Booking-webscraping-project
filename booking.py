@@ -204,7 +204,7 @@ class BeginningStage():
 
             hotel_detail_dict_list.append(hotel_detail_dict)
             with tempfile.TemporaryDirectory() as temp_dir:
-                with open(f'{temp_dir}/hotel_dict{i+1}.png','w') as file:
+                with open(f'{temp_dir}/hotel_dict{i+1}.json','w') as file:
                     json.dump(hotel_detail_dict,file)
                     self.s3_client.upload_file(f'{temp_dir}/hotel_dict{i+1}.json', 'bookingbucket', f'hotel_jsons/hotel{i+1}.json')
             # with open(f'hotel_jsons/hotel{i+1}.json','w') as file:
