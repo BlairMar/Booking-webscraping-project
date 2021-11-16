@@ -20,10 +20,6 @@ import json
 import tempfile
 
 
-
-
-
-
 # self.driver = webself.driver.Chrome()
 url = 'https://www.booking.com'
 # self.driver.get(url)
@@ -165,7 +161,6 @@ class BeginningStage():
                 hotel_detail_dict['Room_Type'] = hotel_room_type.text
             except:
                 hotel_detail_dict['Room_Type'] = 'Room Type Not Found'
-
             try:
                 hotel_price = self.driver.find_element_by_class_name('prco-valign-middle-helper')
                 hotel_detail_dict['Price'] = hotel_price.text
@@ -211,7 +206,7 @@ class BeginningStage():
                     json.dump(hotel_detail_dict,file)
                     # self.s3_client.upload_file(f'{temp_dir}/hotel_dict{i+1}.json', 'bookingbucket', f'hotel_jsons/hotel{i+1}.json')
 
-
+            
             # with open(f'hotel_jsons/hotel{i+1}.json','w') as file:
             #     json.dump(hotel_detail_dict,file)
             #     self.s3_client.upload_file(f'hotel_jsons/hotel{i+1}.json','bookingbucket',f'hotel_jsons/hotel{i+1}.json')
@@ -221,6 +216,7 @@ class BeginningStage():
         df.to_csv('hotels.csv')
         self.driver.quit()
         # self.s3_client.upload_file('hotels.csv', 'bookingbucket', 'hotels.csv')
+
     
 
     def click_next_page(self):
