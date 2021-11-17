@@ -81,16 +81,41 @@ class BeginningStage():
     def choose_dates(self):
         '''This function is used to choose dates (auto set to 22nd and 23rd November)'''
         # TODO: set this so dates can be chosen by user
-        check_in = self.driver.find_element_by_css_selector('td[data-date="2021-11-22"]')
-        check_out = self.driver.find_element_by_css_selector('td[data-date="2021-11-23"]')
+        check_in = self.driver.find_element_by_css_selector('td[data-date="2021-12-22"]')
+        check_out = self.driver.find_element_by_css_selector('td[data-date="2021-12-23"]')
         check_in.click()
         check_out.click()
+
 
 
     def click_search_button(self):
         '''This function clicks the search button'''
         search_button = self.driver.find_element_by_css_selector('button[type="submit"]')
         search_button.click()
+        curl = self.driver.current_url
+    
+        ck_in_dt = input('Enter checkin date(yyyy-mm-dd): ')
+        ck_ou_dt = input('Enter checkout date(yyyy-mm-dd): ')
+        ck_in_yr=ck_in_dt[0:4]
+        ck_in_mn=ck_in_dt[5:7]
+        ck_in_dy=ck_in_dt[8:10]
+        ck_ou_yr=ck_ou_dt[0:4]
+        ck_ou_mn=ck_ou_dt[5:7]
+        ck_ou_dy=ck_ou_dt[8:10]
+        
+        ck_yr=curl.index("checkin_year=")
+        ck_mn=curl.index("checkin_month=")
+        ck_dy=curl.index("checkin_monthday=")
+        co_yr=curl.index("checkout_year=")
+        co_mn=curl.index("checkout_month=")
+        co_dy=curl.index("checkout_monthday=")
+
+        curl=curl[:ck_yr+13]+ck_in_yr+curl[ck_yr+17:ck_mn+14]+ck_in_mn+curl[ck_mn+16:ck_dy+17]+ck_in_dy+curl[ck_dy+19:co_yr+14]+ck_ou_yr+curl[co_yr+18:co_mn+15]+ck_ou_mn+curl[co_mn+17:co_dy+18]+ck_ou_dy+curl[co_dy+20:]
+        webpage = self.driver.get(curl)
+        #time.sleep(3)
+        search_button = self.driver.find_element_by_css_selector('button[type="submit"]')
+        search_button.click()
+        return webpage
 
     def get_hotel_urls(self):
         '''This function is used to retrieve a list of hotel URLs from the search result container.
@@ -146,8 +171,8 @@ class BeginningStage():
             # url_counter += 1
         for i, url in enumerate(self.hotel_urls):
             print(i+1)
-            hotel_detail_dict = {'Name' : None, 'Room_Type': None ,'Price' : None, 'Address': None, 'Deals': 'None', 
-                            'Wifi': 0}
+            hotel_detail_dict = {'Name' : None, 'Room_Type': None ,'Price' : None, 'Address': None, 'Deals': None, 
+                            'Wifi': 0,'Rating':None,'Facilities':None}
             # hotel_detail_dict = {'Name' : None, 'Room_Type': None ,'Price' : None, 'Address': None, 'Deals': 'None', 
             #             'Wifi': 0, 'Restaurant': 0, 'Room_Service': 0, 'Private_Parking': 0, 'Disabled_Facilities': 0,
             #             '24hr_FrontDesk': 0}
@@ -173,8 +198,21 @@ class BeginningStage():
                 hotel_detail_dict['Address'] = hotel_address.text  
             except:
                 hotel_detail_dict['Address'] = 'Address Not Found'   
- 
-
+            try:    
+                hotel_rating = self.driver.find_element_by_xpath('//*[@id="js--hp-gallery-scorecard"]/a/div/div/div/div/div[1]')
+                hotel_detail_dict['Rating'] = hotel_rating.text  
+            except:
+                hotel_detail_dict['Rating'] = 'Rating Not Found'   
+            try:    
+                hotel_facilities = self.driver.find_element_by_xpath('//*[@id="basiclayout"]/div[1]/div/div[7]/div')
+                temp_list=hotel_facilities.text
+                temp_list=temp_list[24:] # used to remove the phrase 'Most popular facilities'
+                hotel_detail_dict['Facilities'] = temp_list
+            except:
+                hotel_detail_dict['Facilities'] = 'No Facilities Found'   
+            print(hotel_detail_dict)
+                        
+            
             # try:
             # hotel_deal_temp = self.driver.find_element_by_css_selector('span[class="bui-badge__text"]').text
             # hotel_detail_dict['Deals'] = hotel_deal_temp
