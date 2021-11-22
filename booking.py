@@ -1,8 +1,6 @@
 from selenium import webdriver
 import time
 from webdriver_manager.chrome import ChromeDriverManager
-
-# from time import sleep
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -17,9 +15,6 @@ import itertools
 import boto3
 import json
 import tempfile
-
-
-
 
 
 # self.driver = webself.driver.Chrome()
@@ -37,6 +32,8 @@ class BeginningStage():
         # self.driver = webdriver.Chrome(options=options)
         options.add_argument("--start-maximized")
         self.hotel_urls = []
+        self.dates=[] # Checkin and checkout dates to be saved as checkinyyyy, checkinmm, checkindd, checkoutyyyy, checkoutmm & checkoutdd
+        self.destination=[]# Destiantion is saved in the list, however curretnly set to search only one destination
         self.page_counter = 0
         self.s3_client = boto3.client('s3')
 
@@ -65,15 +62,20 @@ class BeginningStage():
         first_option = self.driver.find_element_by_xpath('//*[@id="frm"]/div[1]/div[1]/div[1]/div[1]/ul[1]/li[2]')
         first_option.click()
 
-    def select_search_bar(self, destination):
+    def select_search_bar(self):
+    #def select_search_bar(self, destination):
         '''This function is used to select the search bar and search for the destination provided.
         
         Attributes:
             destination: str, typed in by user for entry into the search bar'''
+        user_detination = input('Enter the desitnation of your choice : ')
+        self.destination.append(user_detination)
+        
+
         ignored_exceptions=(NoSuchElementException,StaleElementReferenceException)
         search_bar = self.driver.find_element_by_id('ss')
         search_bar.clear()
-        search_bar.send_keys(destination)
+        search_bar.send_keys(user_detination)
         first_result = WebDriverWait(self.driver, 5, ignored_exceptions=ignored_exceptions).until(EC.presence_of_element_located(
                     (By.CSS_SELECTOR, 'li[data-i="0"]')))
         first_result.click()
@@ -93,29 +95,30 @@ class BeginningStage():
         search_button = self.driver.find_element_by_css_selector('button[type="submit"]')
         search_button.click()
         curl = self.driver.current_url
-    
-        ck_in_dt = input('Enter checkin date(yyyy-mm-dd): ')
-        ck_ou_dt = input('Enter checkout date(yyyy-mm-dd): ')
-        ck_in_yr=ck_in_dt[0:4]
-        ck_in_mn=ck_in_dt[5:7]
-        ck_in_dy=ck_in_dt[8:10]
-        ck_ou_yr=ck_ou_dt[0:4]
-        ck_ou_mn=ck_ou_dt[5:7]
-        ck_ou_dy=ck_ou_dt[8:10]
+        self.get_dates()
+        self.get_dates()
+        print(self.dates)
+        ck_yr = curl.index("checkin_year=")
+        ck_mn = curl.index("checkin_month=")
+        ck_dy = curl.index("checkin_monthday=")
+        co_yr = curl.index("checkout_year=")
+        co_mn = curl.index("checkout_month=")
+        co_dy = curl.index("checkout_monthday=")
         
-        ck_yr=curl.index("checkin_year=")
-        ck_mn=curl.index("checkin_month=")
-        ck_dy=curl.index("checkin_monthday=")
-        co_yr=curl.index("checkout_year=")
-        co_mn=curl.index("checkout_month=")
-        co_dy=curl.index("checkout_monthday=")
-
-        curl=curl[:ck_yr+13]+ck_in_yr+curl[ck_yr+17:ck_mn+14]+ck_in_mn+curl[ck_mn+16:ck_dy+17]+ck_in_dy+curl[ck_dy+19:co_yr+14]+ck_ou_yr+curl[co_yr+18:co_mn+15]+ck_ou_mn+curl[co_mn+17:co_dy+18]+ck_ou_dy+curl[co_dy+20:]
+        curl = curl[:ck_yr+13] + self.dates[0]  + curl[ck_yr+17:ck_mn+14] + self.dates[1] + curl[ck_mn+16:ck_dy+17] + self.dates[2] + curl[ck_dy+19:co_yr+14] + self.dates[3] + curl[co_yr+18:co_mn+15] + self.dates[4] + curl[co_mn+17:co_dy+18] + self.dates[5] +curl[co_dy+20:]
+        
         webpage = self.driver.get(curl)
         #time.sleep(3)
         search_button = self.driver.find_element_by_css_selector('button[type="submit"]')
         search_button.click()
         return webpage
+    def get_dates(self):
+        travel_dt = input('Enter Travel date (yyyy-mm-dd): ')
+        self.dates.append(travel_dt[0:4])
+        self.dates.append(travel_dt[5:7])
+        self.dates.append(travel_dt[8:10])
+        
+        
 
     def get_hotel_urls(self):
         '''This function is used to retrieve a list of hotel URLs from the search result container.
@@ -172,7 +175,7 @@ class BeginningStage():
         for i, url in enumerate(self.hotel_urls):
             print(i+1)
             hotel_detail_dict = {'Name' : None, 'Room_Type': None ,'Price' : None, 'Address': None, 'Deals': None, 
-                            'Wifi': 0,'Rating':None,'Facilities':None}
+                            'Wifi' : 0,'Rating' : None,'Facilities' : None, 'Star': None}
             # hotel_detail_dict = {'Name' : None, 'Room_Type': None ,'Price' : None, 'Address': None, 'Deals': 'None', 
             #             'Wifi': 0, 'Restaurant': 0, 'Room_Service': 0, 'Private_Parking': 0, 'Disabled_Facilities': 0,
             #             '24hr_FrontDesk': 0}
@@ -204,50 +207,29 @@ class BeginningStage():
             except:
                 hotel_detail_dict['Rating'] = 'Rating Not Found'   
             try:    
-                hotel_facilities = self.driver.find_element_by_xpath('//*[@id="basiclayout"]/div[1]/div/div[7]/div')
+                hotel_facilities = self.driver.find_element_by_xpath('//*[@id="basiclayout"]/div[1]/div/div[2]/div[16]')
                 temp_list=hotel_facilities.text
                 temp_list=temp_list[24:] # used to remove the phrase 'Most popular facilities'
                 hotel_detail_dict['Facilities'] = temp_list
             except:
                 hotel_detail_dict['Facilities'] = 'No Facilities Found'   
             print(hotel_detail_dict)
+            
+            # For some reason I am unable to get the stars part working.
+            try:    
+                hotel_stars  = self.driver.find_element_by_xpath('//*[@id="wrap-hotelpage-top"]/div[1]/span/span[1]/div/div/span/div/span')
+                hotel_detail_dict['Star'] = hotel_stars.text  
+                print(hotel_stars.text)
+            except:
+                hotel_detail_dict['Star'] = 'Stars unavailable'   
                         
             
-            # try:
-            # hotel_deal_temp = self.driver.find_element_by_css_selector('span[class="bui-badge__text"]').text
-            # hotel_detail_dict['Deals'] = hotel_deal_temp
-            # hotel_detail_dict['Deals'].append(hotel_deal_temp)
-            # hotel_wifi_temp = self.driver.find_element_by_css_selector('div[data-name-en="WiFi everywhere"]')
-            # hotel_restaurant_temp = self.driver.find_element_by_css_selector('div[data-name-en="Restaurant"]')
-            # hotel_room_service_temp = self.driver.find_element_by_css_selector('div[data-name-en="Room-service"]')
-            # hotel_private_parking_temp = self.driver.find_element_by_css_selector('div[data-name-en="Private parking"]')
-            # hotel_disabled_facilities_temp = self.driver.find_element_by_css_selector('div[data-name-en="Rooms/Facilities for Disabled"]')
-            # hotel_24hr_desk_temp = self.driver.find_element_by_css_selector('div[data-name-en="24 hour Front Desk"]')
-            # if hotel_wifi_temp:
-            #     hotel_detail_dict['Wifi'] = 1
-            # if hotel_restaurant_temp:
-            #     hotel_detail_dict['Restaurant'] = 1
-            # if hotel_room_service_temp:
-            #     hotel_detail_dict['Room-service'] = 1
-            # if hotel_private_parking_temp:
-            #     hotel_detail_dict['Private_Parking'] = 1
-            # if hotel_disabled_facilities_temp:
-            #     hotel_detail_dict['Disabled_Facilities'] = 1
-            # if hotel_24hr_desk_temp:
-            #     hotel_detail_dict['24hr_FrontDesk'] = 1
-
-
-            # except NoSuchElementException:
-            #     pass
-
+            
             hotel_detail_dict_list.append(hotel_detail_dict)
             with tempfile.TemporaryDirectory() as temp_dir:
                 with open(f'{temp_dir}/hotel_dict{i+1}.json','w') as file:
                     json.dump(hotel_detail_dict,file)
                     self.s3_client.upload_file(f'{temp_dir}/hotel_dict{i+1}.json', 'bookingbucket', f'hotel_jsons/hotel{i+1}.json')
-            # with open(f'hotel_jsons/hotel{i+1}.json','w') as file:
-            #     json.dump(hotel_detail_dict,file)
-            #     self.s3_client.upload_file(f'hotel_jsons/hotel{i+1}.json','bookingbucket',f'hotel_jsons/hotel{i+1}.json')
             
         print('gathered all hotel data')
         df = pd.json_normalize(hotel_detail_dict_list) 
@@ -292,7 +274,7 @@ class BeginningStage():
             
             Attributes:
                 adult_count: int, the number of adults to include in the search'''
-            #adults=self.driver.find_elements_by_xpath(class='bui-u-sr-only')
+            
         container=self.driver.find_element_by_xpath('//*[@id="xp__guests__toggle"]/span[2]')
         container.click()
         if adult_count > 2:
@@ -346,11 +328,7 @@ class BeginningStage():
 first_booking = BeginningStage()
 first_booking.get_webpage()
 first_booking.accept_cookies()
-
-# first_booking.choose_option_1()
-first_booking.select_search_bar('Spain')
-
-
+first_booking.select_search_bar()
 first_booking.choose_dates()
 first_booking.adults(2)
 #first_booking.children(2,4,14)
