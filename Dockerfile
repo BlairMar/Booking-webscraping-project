@@ -1,4 +1,5 @@
-FROM python:3.8-slim-buster
+FROM python:3.9.7-slim 
+#scanned with docker scan, suggested this for less vulnerabilty
 
 COPY booking.py requirements.txt ./
 
