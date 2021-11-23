@@ -28,10 +28,10 @@ class BeginningStage():
     def __init__(self):
         options = webdriver.ChromeOptions()
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
+        options.add_argument("--headless")
         self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
         # self.driver = webdriver.Chrome(options=options)
-        options.add_argument("--start-maximized")
-        self.hotel_urls = []
+          self.hotel_urls = []
         self.dates=[] # Checkin and checkout dates to be saved as checkinyyyy, checkinmm, checkindd, checkoutyyyy, checkoutmm & checkoutdd
         self.destination=[]# Destiantion is saved in the list, however curretnly set to search only one destination
         self.page_counter = 0
