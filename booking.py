@@ -28,10 +28,10 @@ class BeginningStage():
     def __init__(self):
         options = webdriver.ChromeOptions()
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
-        options.add_argument("--headless")
+        #options.add_argument("--headless")
         self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
         # self.driver = webdriver.Chrome(options=options)
-          self.hotel_urls = []
+        self.hotel_urls = []
         self.dates=[] # Checkin and checkout dates to be saved as checkinyyyy, checkinmm, checkindd, checkoutyyyy, checkoutmm & checkoutdd
         self.destination=[]# Destiantion is saved in the list, however curretnly set to search only one destination
         self.page_counter = 0
@@ -95,6 +95,7 @@ class BeginningStage():
         search_button = self.driver.find_element_by_css_selector('button[type="submit"]')
         search_button.click()
         curl = self.driver.current_url
+        print(curl)
         self.get_dates()
         self.get_dates()
         print(self.dates)
