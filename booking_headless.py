@@ -71,6 +71,8 @@ class Scraper():
         self.dates.append(travel_dt[5:7])
         self.dates.append(travel_dt[8:10])
         
+    def get_dest(self):
+        
         
 
     def get_hotel_urls(self):
