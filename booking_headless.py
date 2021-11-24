@@ -50,28 +50,19 @@ class Scraper():
         accept = self.driver.find_element(By.ID,'onetrust-accept-btn-handler')
         accept.click()
 
-    def click_search_button(self):
-        '''This function clicks the search button'''
-        search_button = self.driver.find_element(By.CSS_SELECTOR,'button[type="submit"]')
-        search_button.click()
-        curl = self.driver.current_url
+    def amend_url(self):
+        '''This amends the URL to search for the user inputted data'''
+        self.get_dates()
+        self.get_dates()
+        self.get_dest()
+        
+        #curl = curl[:ck_yr+13] + self.dates[0]  + curl[ck_yr+17:ck_mn+14] + self.dates[1] + curl[ck_mn+16:ck_dy+17] + self.dates[2] + curl[ck_dy+19:co_yr+14] + self.dates[3] + curl[co_yr+18:co_mn+15] + self.dates[4] + curl[co_mn+17:co_dy+18] + self.dates[5] +curl[co_dy+20:]
+        curl = f'https://www.booking.com/searchresults.html?label=gen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB&lang=en-us&sid=61c3b046e3496364bf0e0cc43c757203&sb=1&sb_lp=1&src=index&src_elem=sb&error_url=https%3A%2F%2Fwww.booking.com%2Findex.html%3Flabel%3Dgen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB%3Bsid%3D61c3b046e3496364bf0e0cc43c757203%3Bsb_price_type%3Dtotal%3Bsig%3Dv1w_e9ye7_%26%3B&ss=Barcelona&is_ski_area=0&dest_type=city&checkin_year={self.dates[0]}&checkin_month={self.dates[1]}&checkin_monthday={self.dates[2]}&checkout_year={self.dates[3]}&checkout_month={self.dates[4]}&checkout_monthday={self.dates[5]}&group_adults=2&group_children=0&no_rooms=1&b_h4u_keep_filters=&from_sf=1'
+   
+        
         print(curl)
-        self.get_dates()
-        self.get_dates()
-        print(self.dates)
-        ck_yr = curl.index("checkin_year=")
-        ck_mn = curl.index("checkin_month=")
-        ck_dy = curl.index("checkin_monthday=")
-        co_yr = curl.index("checkout_year=")
-        co_mn = curl.index("checkout_month=")
-        co_dy = curl.index("checkout_monthday=")
-        
-        curl = curl[:ck_yr+13] + self.dates[0]  + curl[ck_yr+17:ck_mn+14] + self.dates[1] + curl[ck_mn+16:ck_dy+17] + self.dates[2] + curl[ck_dy+19:co_yr+14] + self.dates[3] + curl[co_yr+18:co_mn+15] + self.dates[4] + curl[co_mn+17:co_dy+18] + self.dates[5] +curl[co_dy+20:]
-        
+        time.sleep(10)
         webpage = self.driver.get(curl)
-        #time.sleep(3)
-        search_button = self.driver.find_element(By.CSS_SELECTOR,'button[type="submit"]')
-        search_button.click()
         return webpage
     
     def get_dates(self):
@@ -290,3 +281,4 @@ class Scraper():
 booking = Scraper()
 booking.get_webpage()
 booking.accept_cookies()
+booking.amend_url()
