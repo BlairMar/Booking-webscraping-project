@@ -15,6 +15,7 @@ import itertools
 import boto3
 import json
 import tempfile
+import re
 
 class Scraper():
     ''' This class is used to scrape data from Booking.com
@@ -28,7 +29,7 @@ class Scraper():
         # self.driver = webdriver.Chrome(options=options)
         self.hotel_urls = []
         self.dates=[] # Checkin and checkout dates to be saved as checkinyyyy, checkinmm, checkindd, checkoutyyyy, checkoutmm & checkoutdd
-        self.destination=[]# Destiantion is saved in the list, however curretnly set to search only one destination
+        self.dest=[]# Destiantion is saved in the list, however curretnly set to search only one destination
         self.page_counter = 0
         self.s3_client = boto3.client('s3')
         self.start_url = 'https://www.booking.com/searchresults.html?label=gen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB&lang=en-us&sid=61c3b046e3496364bf0e0cc43c757203&sb=1&sb_lp=1&src=index&src_elem=sb&error_url=https%3A%2F%2Fwww.booking.com%2Findex.html%3Flabel%3Dgen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB%3Bsid%3D61c3b046e3496364bf0e0cc43c757203%3Bsb_price_type%3Dtotal%3Bsig%3Dv1w_e9ye7_%26%3B&ss=Barcelona&is_ski_area=0&dest_type=city&checkin_year=2022&checkin_month=1&checkin_monthday=19&checkout_year=2022&checkout_month=1&checkout_monthday=20&group_adults=2&group_children=0&no_rooms=1&b_h4u_keep_filters=&from_sf=1'
@@ -57,7 +58,7 @@ class Scraper():
         self.get_dest()
         
         #curl = curl[:ck_yr+13] + self.dates[0]  + curl[ck_yr+17:ck_mn+14] + self.dates[1] + curl[ck_mn+16:ck_dy+17] + self.dates[2] + curl[ck_dy+19:co_yr+14] + self.dates[3] + curl[co_yr+18:co_mn+15] + self.dates[4] + curl[co_mn+17:co_dy+18] + self.dates[5] +curl[co_dy+20:]
-        curl = f'https://www.booking.com/searchresults.html?label=gen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB&lang=en-us&sid=61c3b046e3496364bf0e0cc43c757203&sb=1&sb_lp=1&src=index&src_elem=sb&error_url=https%3A%2F%2Fwww.booking.com%2Findex.html%3Flabel%3Dgen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB%3Bsid%3D61c3b046e3496364bf0e0cc43c757203%3Bsb_price_type%3Dtotal%3Bsig%3Dv1w_e9ye7_%26%3B&ss=Barcelona&is_ski_area=0&dest_type=city&checkin_year={self.dates[0]}&checkin_month={self.dates[1]}&checkin_monthday={self.dates[2]}&checkout_year={self.dates[3]}&checkout_month={self.dates[4]}&checkout_monthday={self.dates[5]}&group_adults=2&group_children=0&no_rooms=1&b_h4u_keep_filters=&from_sf=1'
+        curl = f'https://www.booking.com/searchresults.html?label=gen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB&lang=en-us&sid=61c3b046e3496364bf0e0cc43c757203&sb=1&sb_lp=1&src=index&src_elem=sb&error_url=https%3A%2F%2Fwww.booking.com%2Findex.html%3Flabel%3Dgen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB%3Bsid%3D61c3b046e3496364bf0e0cc43c757203%3Bsb_price_type%3Dtotal%3Bsig%3Dv1w_e9ye7_%26%3B&ss={self.dest[0]}&is_ski_area=0&dest_type={self.dest[1]}&checkin_year={self.dates[0]}&checkin_month={self.dates[1]}&checkin_monthday={self.dates[2]}&checkout_year={self.dates[3]}&checkout_month={self.dates[4]}&checkout_monthday={self.dates[5]}&group_adults=2&group_children=0&no_rooms=1&b_h4u_keep_filters=&from_sf=1'
    
         
         print(curl)
@@ -72,8 +73,15 @@ class Scraper():
         self.dates.append(travel_dt[8:10])
         
     def get_dest(self):
-        
-        
+        self.dest[0] = input('Enter the desitnation of your choice : ')
+        user_country = input('Is this a country? [Y/N]:')
+        user_country = user_country.upper()
+        if user_country = 'Y':
+            self.dest[1] = 'country'
+        else:
+            self.dest[1] = 'city'
+        return self.dest
+
 
     def get_hotel_urls(self):
         '''This function is used to retrieve a list of hotel URLs from the search result container.
