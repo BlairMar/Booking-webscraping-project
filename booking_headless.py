@@ -15,7 +15,7 @@ import itertools
 import boto3
 import json
 import tempfile
-import re
+
 
 class Scraper():
     ''' This class is used to scrape data from Booking.com
@@ -24,13 +24,13 @@ class Scraper():
     def __init__(self):
         options = webdriver.ChromeOptions()
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
-        #options.add_argument("--headless")
+        options.add_argument("--headless")
         self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
         # self.driver = webdriver.Chrome(options=options)
         self.hotel_urls = []
         self.dates=[] # Checkin and checkout dates to be saved as checkinyyyy, checkinmm, checkindd, checkoutyyyy, checkoutmm & checkoutdd
         self.dest=[]# Destiantion is saved in the list, however curretnly set to search only one destination
-        self.travellers=[]
+        self.travellers=[0,0,0,0,0,0,0,0,0,0,0,0]
         self.rooms = 0
         self.page_counter = 0
         self.s3_client = boto3.client('s3')
@@ -46,6 +46,7 @@ class Scraper():
     #     webpage = self.driver.get(url)
     #     time.sleep(3)
     #     return webpage
+
 
     def get_webpage(self):
         '''This amends the URL to search for the user inputted data'''
@@ -73,13 +74,14 @@ class Scraper():
         return self.dates
         
     def get_dest(self):
-        self.dest[0] = input('Enter the desitnation of your choice : ')
+        user_dest = input('Enter the desitnation of your choice : ')
+        self.dest.append(user_dest)
         user_country = input('Is this a country? [Y/N]:')
         user_country = user_country.upper()
         if user_country == 'Y':
-            self.dest[1] = 'country'
+            self.dest.append('country')
         else:
-            self.dest[1] = 'city'
+            self.dest.append('city')
         return self.dest
 
     def get_travellers(self):
@@ -88,19 +90,19 @@ class Scraper():
             Attributes:
                 adult_count: int, the number of adults to include in the search'''
         
-        adults = input("How many adults are travelling? (max = 30): ")
-        self.travellers.append(adults)
+        adults = int(input("How many adults are travelling? (max = 30): "))
+        self.travellers[0] = adults
         children = int(input("How many children are travelling?(max = 10): "))
-        self.travellers.append(children)
+        self.travellers[1] = (children)
 
         if children == 1:
             children_age = int(input("Please input the child's age: "))
-            self.travellers.append(children_age)
+            self.travellers[2] = (children_age)
         elif children > 1:
             n = 1
             while n <= children:
                 children_age = input(f"Please input the age of child {n}:  ")
-                self.travellers.append(children_age)
+                self.travellers[n+1] = (children_age)
                 n += 1
         return self.travellers
 
@@ -267,6 +269,6 @@ class Scraper():
 
 booking = Scraper()
 booking.get_webpage()
-booking.accept_cookies()
-booking.get_travellers()
+#booking.accept_cookies()
+#booking.get_travellers()
 #booking.amend_url()
