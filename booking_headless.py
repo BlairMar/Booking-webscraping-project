@@ -30,6 +30,8 @@ class Scraper():
         self.hotel_urls = []
         self.dates=[] # Checkin and checkout dates to be saved as checkinyyyy, checkinmm, checkindd, checkoutyyyy, checkoutmm & checkoutdd
         self.dest=[]# Destiantion is saved in the list, however curretnly set to search only one destination
+        self.travellers=[]
+        self.rooms = 0
         self.page_counter = 0
         self.s3_client = boto3.client('s3')
         self.start_url = 'https://www.booking.com/searchresults.html?label=gen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB&lang=en-us&sid=61c3b046e3496364bf0e0cc43c757203&sb=1&sb_lp=1&src=index&src_elem=sb&error_url=https%3A%2F%2Fwww.booking.com%2Findex.html%3Flabel%3Dgen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB%3Bsid%3D61c3b046e3496364bf0e0cc43c757203%3Bsb_price_type%3Dtotal%3Bsig%3Dv1w_e9ye7_%26%3B&ss=Barcelona&is_ski_area=0&dest_type=city&checkin_year=2022&checkin_month=1&checkin_monthday=19&checkout_year=2022&checkout_month=1&checkout_monthday=20&group_adults=2&group_children=0&no_rooms=1&b_h4u_keep_filters=&from_sf=1'
@@ -56,13 +58,10 @@ class Scraper():
         self.get_dates()
         self.get_dates()
         self.get_dest()
+        self.get_travellers()
+        self.get_rooms()
         
-        #curl = curl[:ck_yr+13] + self.dates[0]  + curl[ck_yr+17:ck_mn+14] + self.dates[1] + curl[ck_mn+16:ck_dy+17] + self.dates[2] + curl[ck_dy+19:co_yr+14] + self.dates[3] + curl[co_yr+18:co_mn+15] + self.dates[4] + curl[co_mn+17:co_dy+18] + self.dates[5] +curl[co_dy+20:]
-        curl = f'https://www.booking.com/searchresults.html?label=gen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB&lang=en-us&sid=61c3b046e3496364bf0e0cc43c757203&sb=1&sb_lp=1&src=index&src_elem=sb&error_url=https%3A%2F%2Fwww.booking.com%2Findex.html%3Flabel%3Dgen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB%3Bsid%3D61c3b046e3496364bf0e0cc43c757203%3Bsb_price_type%3Dtotal%3Bsig%3Dv1w_e9ye7_%26%3B&ss={self.dest[0]}&is_ski_area=0&dest_type={self.dest[1]}&checkin_year={self.dates[0]}&checkin_month={self.dates[1]}&checkin_monthday={self.dates[2]}&checkout_year={self.dates[3]}&checkout_month={self.dates[4]}&checkout_monthday={self.dates[5]}&group_adults=2&group_children=0&no_rooms=1&b_h4u_keep_filters=&from_sf=1'
-   
-        
-        print(curl)
-        time.sleep(10)
+        curl = f'https://www.booking.com/searchresults.html?label=gen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB&lang=en-us&sid=61c3b046e3496364bf0e0cc43c757203&sb=1&sb_lp=1&src=index&src_elem=sb&error_url=https%3A%2F%2Fwww.booking.com%2Findex.html%3Flabel%3Dgen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB%3Bsid%3D61c3b046e3496364bf0e0cc43c757203%3Bsb_price_type%3Dtotal%3Bsig%3Dv1w_e9ye7_%26%3B&ss={self.dest[0]}&is_ski_area=0&dest_type={self.dest[1]}&checkin_year={self.dates[0]}&checkin_month={self.dates[1]}&checkin_monthday={self.dates[2]}&checkout_year={self.dates[3]}&checkout_month={self.dates[4]}&checkout_monthday={self.dates[5]}&group_adults=2&group_children=0&age=6&age=11&age=11&age=8&age=6&age=8&age=9&age=14&age=16&age=3&no_rooms=2&b_h4u_keep_filters=&from_sf=1'
         webpage = self.driver.get(curl)
         return webpage
     
@@ -71,17 +70,49 @@ class Scraper():
         self.dates.append(travel_dt[0:4])
         self.dates.append(travel_dt[5:7])
         self.dates.append(travel_dt[8:10])
+        return self.dates
         
     def get_dest(self):
         self.dest[0] = input('Enter the desitnation of your choice : ')
         user_country = input('Is this a country? [Y/N]:')
         user_country = user_country.upper()
-        if user_country = 'Y':
+        if user_country == 'Y':
             self.dest[1] = 'country'
         else:
             self.dest[1] = 'city'
         return self.dest
 
+    def get_travellers(self):
+        '''This function is used to define the number of adults to be included in the search
+            
+            Attributes:
+                adult_count: int, the number of adults to include in the search'''
+        
+        adults = input("How many adults are travelling? (max = 30): ")
+        self.travellers.append(adults)
+        children = int(input("How many children are travelling?(max = 10): "))
+        self.travellers.append(children)
+
+        if children == 1:
+            children_age = int(input("Please input the child's age: "))
+            self.travellers.append(children_age)
+        elif children > 1:
+            n = 1
+            while n <= children:
+                children_age = input(f"Please input the age of child {n}:  ")
+                self.travellers.append(children_age)
+                n += 1
+        return self.travellers
+
+   
+    def get_rooms(self):
+        '''This function is used to define the number of rooms to be included in the search
+            
+            Attributes:
+                number_of_rooms: int, the number of rooms to include in the search'''
+
+        self.rooms = int(input("How many rooms do you need?: "))
+        return self.rooms
 
     def get_hotel_urls(self):
         '''This function is used to retrieve a list of hotel URLs from the search result container.
@@ -232,63 +263,10 @@ class Scraper():
                 #     pass
         self.get_hotel_details()    
 
-    def adults(self,adult_count):
-        '''This function is used to define the number of adults to be included in the search
-            
-            Attributes:
-                adult_count: int, the number of adults to include in the search'''
-            
-        container=self.driver.find_element(By.XPATH,'//*[@id="xp__guests__toggle"]/span[2]')
-        container.click()
-        if adult_count > 2:
-            while adult_count !=2:
-                add_adult=self.driver.find_element(By.XPATH,'//*[@id="xp__guests__inputs-container"]/div/div/div[1]/div/div[2]/button[2]')
-                add_adult.click()
-                adult_count -= 1
-        elif adult_count == 1:
-            add_adult=self.driver.find_element(By.XPATH,'//*[@id="xp__guests__inputs-container"]/div/div/div[1]/div/div[2]/button[1]')
-            add_adult.click()
-
-    def children(self,children_count=0,age1=0,age2=0,age3=0,age4=0,age5=0,age6=0,age7=0,age8=0,age9=0,age10=0):
-        '''This function is used to define the number of children and their ages to be included in the search. Number of children restricted to 10.
-            
-            Attributes:
-                children_count: int, the number of children to include in the search
-                age(n): int, the age of each child where n is the number of children
-            
-            Example:
-            ".children(2,4,12)" includes 2 children aged 4 and 12 on the search'''
-        if children_count>0:
-            child_ages=[age2+2,age3+2,age4+2,age5+2,age6+2,age7+2,age8+2,age9+2,age10+2]
-            children=self.driver.find_element(By.XPATH,'//*[@id="xp__guests__inputs-container"]/div/div/div[2]/div/div[2]/button[2]')
-            children.click()
-            choose_age=self.driver.find_element(By.XPATH,f'//*[@id="xp__guests__inputs-container"]/div/div/div[3]/select/option[{age1+2}]')
-            choose_age.click()
-
-        if children_count>1:
-            count =1
-            for child in range(1,children_count):
-                age=child_ages[count-1]
-                count+=1
-                print(age)
-                children=self.driver.find_element(By.XPATH,'//*[@id="xp__guests__inputs-container"]/div/div/div[2]/div/div[2]/button[2]')
-                children.click()
-                choose_age=self.driver.find_element(By.XPATH,f'//*[@id="xp__guests__inputs-container"]/div/div/div[3]/select[{count}]/option[{age}]')
-                choose_age.click()
-
     
-    def rooms(self,number_of_rooms=1):
-        '''This function is used to define the number of rooms to be included in the search
-            
-            Attributes:
-                number_of_rooms: int, the number of rooms to include in the search'''
-        if number_of_rooms > 1:
-            while number_of_rooms !=1:
-                add_room=self.driver.find_element(By.XPATH,'//*[@id="xp__guests__inputs-container"]/div/div/div[4]/div/div[2]/button[2]/span')
-                add_room.click()
-                number_of_rooms -= 1        
 
 booking = Scraper()
 booking.get_webpage()
 booking.accept_cookies()
-booking.amend_url()
+booking.get_travellers()
+#booking.amend_url()
