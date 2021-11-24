@@ -16,14 +16,14 @@ import boto3
 import json
 import tempfile
 
-class BeginningStage():
+class Scraper():
     ''' This class is used to scrape data from Booking.com
     '''
 
     def __init__(self):
         options = webdriver.ChromeOptions()
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
-        options.add_argument("--headless")
+        #options.add_argument("--headless")
         self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
         # self.driver = webdriver.Chrome(options=options)
         self.hotel_urls = []
@@ -39,7 +39,7 @@ class BeginningStage():
         
         Returns:
             webpage'''
-        url = 'https://www.booking.com'
+        url = self.start_url
         webpage = self.driver.get(url)
         time.sleep(3)
         return webpage
@@ -304,20 +304,6 @@ class BeginningStage():
                 add_room.click()
                 number_of_rooms -= 1        
 
-first_booking = BeginningStage()
-first_booking.get_webpage()
-first_booking.choose_option_1()
-#first_booking.accept_cookies()
-#first_booking.select_search_bar()
-first_booking.choose_dates()
-first_booking.adults(2)
-#first_booking.children(2,4,14)
-#first_booking.rooms(2)
-first_booking.click_search_button()
-# first_booking.duplicate_tab()
-# first_booking.apply_star_rating(2)
-# first_booking.budget_filters(25)
-first_booking.get_hotel_urls()
-first_booking.click_next_page()
-#first_booking.get_hotel_details()
-# first_booking.write_to_csv()
+booking = Scraper()
+booking.get_webpage()
+booking.accept_cookies()
