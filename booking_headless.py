@@ -37,23 +37,17 @@ class Scraper():
         self.start_url = 'https://www.booking.com/searchresults.html?label=gen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB&lang=en-us&sid=61c3b046e3496364bf0e0cc43c757203&sb=1&sb_lp=1&src=index&src_elem=sb&error_url=https%3A%2F%2Fwww.booking.com%2Findex.html%3Flabel%3Dgen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB%3Bsid%3D61c3b046e3496364bf0e0cc43c757203%3Bsb_price_type%3Dtotal%3Bsig%3Dv1w_e9ye7_%26%3B&ss=Barcelona&is_ski_area=0&dest_type=city&checkin_year=2022&checkin_month=1&checkin_monthday=19&checkout_year=2022&checkout_month=1&checkout_monthday=20&group_adults=2&group_children=0&no_rooms=1&b_h4u_keep_filters=&from_sf=1'
 
 
-    def get_webpage(self):
-        '''This function is used to fetch a webpage using ChromeDriver.
+    # def get_webpage(self):
+    #     '''This function is used to fetch a webpage using ChromeDriver.
         
-        Returns:
-            webpage'''
-        url = self.start_url
-        webpage = self.driver.get(url)
-        time.sleep(3)
-        return webpage
+    #     Returns:
+    #         webpage'''
+    #     url = self.start_url
+    #     webpage = self.driver.get(url)
+    #     time.sleep(3)
+    #     return webpage
 
-
-    def accept_cookies(self):
-        '''This function is used to click the 'accept cookies' button that appears on the webpage'''
-        accept = self.driver.find_element(By.ID,'onetrust-accept-btn-handler')
-        accept.click()
-
-    def amend_url(self):
+    def get_webpage(self):
         '''This amends the URL to search for the user inputted data'''
         self.get_dates()
         self.get_dates()
@@ -61,9 +55,15 @@ class Scraper():
         self.get_travellers()
         self.get_rooms()
         
-        curl = f'https://www.booking.com/searchresults.html?label=gen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB&lang=en-us&sid=61c3b046e3496364bf0e0cc43c757203&sb=1&sb_lp=1&src=index&src_elem=sb&error_url=https%3A%2F%2Fwww.booking.com%2Findex.html%3Flabel%3Dgen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB%3Bsid%3D61c3b046e3496364bf0e0cc43c757203%3Bsb_price_type%3Dtotal%3Bsig%3Dv1w_e9ye7_%26%3B&ss={self.dest[0]}&is_ski_area=0&dest_type={self.dest[1]}&checkin_year={self.dates[0]}&checkin_month={self.dates[1]}&checkin_monthday={self.dates[2]}&checkout_year={self.dates[3]}&checkout_month={self.dates[4]}&checkout_monthday={self.dates[5]}&group_adults=2&group_children=0&age=6&age=11&age=11&age=8&age=6&age=8&age=9&age=14&age=16&age=3&no_rooms=2&b_h4u_keep_filters=&from_sf=1'
+        curl = f'https://www.booking.com/searchresults.html?label=gen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB&lang=en-us&sid=61c3b046e3496364bf0e0cc43c757203&sb=1&sb_lp=1&src=index&src_elem=sb&error_url=https%3A%2F%2Fwww.booking.com%2Findex.html%3Flabel%3Dgen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB%3Bsid%3D61c3b046e3496364bf0e0cc43c757203%3Bsb_price_type%3Dtotal%3Bsig%3Dv1w_e9ye7_%26%3B&ss={self.dest[0]}&is_ski_area=0&dest_type={self.dest[1]}&checkin_year={self.dates[0]}&checkin_month={self.dates[1]}&checkin_monthday={self.dates[2]}&checkout_year={self.dates[3]}&checkout_month={self.dates[4]}&checkout_monthday={self.dates[5]}&group_adults={self.travellers[0]}&group_children={self.travellers[1]}&age={self.travellers[2]}&age={self.travellers[3]}&age={self.travellers[4]}&age={self.travellers[5]}&age={self.travellers[6]}&age={self.travellers[7]}&age={self.travellers[8]}&age={self.travellers[9]}&age={self.travellers[10]}&age={self.travellers[11]}&no_rooms={self.rooms}&b_h4u_keep_filters=&from_sf=1'
         webpage = self.driver.get(curl)
         return webpage
+
+        
+    def accept_cookies(self):
+        '''This function is used to click the 'accept cookies' button that appears on the webpage'''
+        accept = self.driver.find_element(By.ID,'onetrust-accept-btn-handler')
+        accept.click()
     
     def get_dates(self):
         travel_dt = input('Enter Travel date (yyyy-mm-dd): ')
