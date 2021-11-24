@@ -50,23 +50,6 @@ class Scraper():
         accept = self.driver.find_element(By.ID,'onetrust-accept-btn-handler')
         accept.click()
 
-    def choose_option_1(self):
-        '''This function is used to click the first option that appears when the Booking.com search bar is clicked'''
-        search_bar = self.driver.find_element(By.ID,'ss')
-        search_bar.click()
-        first_option = self.driver.find_element(By.XPATH,'//*[@id="frm"]/div[1]/div[1]/div[1]/div[1]/ul[1]/li[2]')
-        first_option.click()
-
-    def choose_dates(self):
-        '''This function is used to choose dates (auto set to 22nd and 23rd December)'''
-        # TODO: set this so dates can be chosen by user
-        check_in = self.driver.find_element(By.CSS_SELECTOR,'td[data-date="2021-12-22"]')
-        check_out = self.driver.find_element(By.CSS_SELECTOR,'td[data-date="2021-12-23"]')
-        check_in.click()
-        check_out.click()
-
-
-
     def click_search_button(self):
         '''This function clicks the search button'''
         search_button = self.driver.find_element(By.CSS_SELECTOR,'button[type="submit"]')
