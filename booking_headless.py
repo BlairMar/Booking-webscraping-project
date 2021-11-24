@@ -16,11 +16,6 @@ import boto3
 import json
 import tempfile
 
-
-# self.driver = webself.driver.Chrome()
-url = 'https://www.booking.com'
-# self.driver.get(url)
-
 class BeginningStage():
     ''' This class is used to scrape data from Booking.com
     '''
