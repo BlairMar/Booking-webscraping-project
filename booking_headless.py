@@ -24,7 +24,8 @@ class Scraper():
     def __init__(self):
         options = webdriver.ChromeOptions()
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
-        options.add_argument("--headless")
+        #options.add_argument("--headless")
+        options.add_argument("--start-maximised")
         self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
         # self.driver = webdriver.Chrome(options=options)
         self.hotel_urls = []
@@ -58,6 +59,8 @@ class Scraper():
         
         curl = f'https://www.booking.com/searchresults.html?label=gen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB&lang=en-us&sid=61c3b046e3496364bf0e0cc43c757203&sb=1&sb_lp=1&src=index&src_elem=sb&error_url=https%3A%2F%2Fwww.booking.com%2Findex.html%3Flabel%3Dgen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB%3Bsid%3D61c3b046e3496364bf0e0cc43c757203%3Bsb_price_type%3Dtotal%3Bsig%3Dv1w_e9ye7_%26%3B&ss={self.dest[0]}&is_ski_area=0&dest_type={self.dest[1]}&checkin_year={self.dates[0]}&checkin_month={self.dates[1]}&checkin_monthday={self.dates[2]}&checkout_year={self.dates[3]}&checkout_month={self.dates[4]}&checkout_monthday={self.dates[5]}&group_adults={self.travellers[0]}&group_children={self.travellers[1]}&age={self.travellers[2]}&age={self.travellers[3]}&age={self.travellers[4]}&age={self.travellers[5]}&age={self.travellers[6]}&age={self.travellers[7]}&age={self.travellers[8]}&age={self.travellers[9]}&age={self.travellers[10]}&age={self.travellers[11]}&no_rooms={self.rooms}&b_h4u_keep_filters=&from_sf=1'
         webpage = self.driver.get(curl)
+        time.sleep(5)
+        self.driver.get_screenshot_as_file("screenshot_post-get_webpage-headed.png")
         return webpage
 
         
@@ -122,6 +125,7 @@ class Scraper():
         Returns:
             list: list of hotel URLs'''
         time.sleep(5)
+        self.driver.get_screenshot_as_file("screenshot_get_url-headed.png")
         # should work instead of needing sleep each round, but for some reason doesn't - sometimes elements are stale again?
         # try:
         #     WebDriverWait(self.driver,5).until(EC.presence_of_element_located((By.XPATH,'/html/body/div[3]/div/div[3]/div[1]/div[1]/div[3]/div[4]/div[1]/div/div/div/div[5]/div[27]/div[1]/div[2]/div/div[4]/div/div[1]/div/div/div/div[3]/div[1]')))
@@ -237,7 +241,7 @@ class Scraper():
     def click_next_page(self):
         '''This function is used to click the next page of search results'''
         ignored_exceptions=(NoSuchElementException,StaleElementReferenceException)
-        pages_remaining = True
+        #pages_remaining = True
         page_count = 0
 
         # # ##USE TO SCRAPE ALL PAGES
@@ -269,6 +273,6 @@ class Scraper():
 
 booking = Scraper()
 booking.get_webpage()
-#booking.accept_cookies()
-#booking.get_travellers()
-#booking.amend_url()
+booking.get_hotel_urls()
+booking.get_hotel_details()
+booking.click_next_page()
