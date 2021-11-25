@@ -58,6 +58,10 @@ class Scraper():
         return webpage
     
     def get_dates(self):
+        '''This method retrieves the travel dates from user input.
+            Returns: 
+                self.dates - list of travel dates'''
+
         travel_dt = input('Enter Travel date (yyyy-mm-dd): ')
         self.dates.append(travel_dt[0:4])
         self.dates.append(travel_dt[5:7])
@@ -65,6 +69,9 @@ class Scraper():
         return self.dates
         
     def get_dest(self):
+        '''This method retrieves the travel destination name and type from user input.
+            Returns: 
+                self.dest - list of travel destination and country or city'''
         user_dest = input('Enter the desitnation of your choice : ')
         self.dest.append(user_dest)
         user_country = input('Is this a country? [Y/N]:')
@@ -76,10 +83,10 @@ class Scraper():
         return self.dest
 
     def get_travellers(self):
-        '''This function is used to define the number of adults to be included in the search
+        '''This function is used to retrieve the number of travellers from user input.
             
-            Attributes:
-                adult_count: int, the number of adults to include in the search'''
+            Returns:
+                self.travellers - list of number of adults, number of children and their ages'''
         
         adults = int(input("How many adults are travelling? (max = 30): "))
         self.travellers[0] = adults
@@ -99,10 +106,10 @@ class Scraper():
 
    
     def get_rooms(self):
-        '''This function is used to define the number of rooms to be included in the search
+        '''This function is used to retrieve the number of rooms from user input.
             
-            Attributes:
-                number_of_rooms: int, the number of rooms to include in the search'''
+            Returns:
+                self.rooms - int'''
 
         self.rooms = int(input("How many rooms do you need?: "))
         return self.rooms
