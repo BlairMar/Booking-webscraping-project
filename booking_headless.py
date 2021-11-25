@@ -11,10 +11,8 @@ from selenium.common.exceptions import TimeoutException
 import pandas as pd
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
-import itertools
 import boto3
 import json
-import tempfile
 import math
 
 
@@ -115,15 +113,6 @@ class Scraper():
         Returns:
             list: list of hotel URLs'''
         time.sleep(5)
-        # should work instead of needing sleep each round, but for some reason doesn't - sometimes elements are stale again?
-        # try:
-        #     WebDriverWait(self.driver,5).until(EC.presence_of_element_located((By.XPATH,'/html/body/div[3]/div/div[3]/div[1]/div[1]/div[3]/div[4]/div[1]/div/div/div/div[5]/div[27]/div[1]/div[2]/div/div[4]/div/div[1]/div/div/div/div[3]/div[1]')))
-        #     WebDriverWait(self.driver,10).until_not(EC.presence_of_element_located((By.XPATH,'/html/body/div[3]/div/div[3]/div[1]/div[1]/div[3]/div[4]/div[1]/div/div/div/div[5]/div[27]/div[1]/div[2]/div/div[4]/div/div[1]/div/div/div/div[3]/div[1]')))
-
-        # except TimeoutException:
-        #     pass
-
-        # finally:
         hotel_container = self.driver.find_element(By.ID,'search_results_table')
         hotel_list = hotel_container.find_elements(By.CSS_SELECTOR,'div[data-testid="property-card"]')
 
@@ -143,14 +132,10 @@ class Scraper():
                 list: list of dictionaries containing individual hotel details '''
         print('gathering hotel data')
         hotel_detail_dict_list = []
-        # url_counter = 0
-            # url_counter += 1
+
         for i, url in enumerate(self.hotel_urls):
             hotel_detail_dict = {'Name' : None, 'Room_Type': None ,'Price' : None, 'Address': None, 'Deals': None, 
                             'Wifi' : 0,'Rating' : None,'Facilities' : None, 'Star': None}
-            # hotel_detail_dict = {'Name' : None, 'Room_Type': None ,'Price' : None, 'Address': None, 'Deals': 'None', 
-            #             'Wifi': 0, 'Restaurant': 0, 'Room_Service': 0, 'Private_Parking': 0, 'Disabled_Facilities': 0,
-            #             '24hr_FrontDesk': 0}
             self.driver.get(url)
             try:
                 hotel_name = self.driver.find_element(By.ID,"hp_hotel_name")
@@ -196,10 +181,6 @@ class Scraper():
                            
             
             hotel_detail_dict_list.append(hotel_detail_dict)
-            # with tempfile.TemporaryDirectory() as temp_dir:
-            #     with open(f'{temp_dir}/hotel_dict{i+1}.json','w') as file:
-            #         json.dump(hotel_detail_dict,file)
-            #         self.s3_client.upload_file(f'{temp_dir}/hotel_dict{i+1}.json', 'bookingbucket', f'hotel_jsons/hotel{i+1}.json')
             s3object = self.s3_resource.Object('bookingbucket', f'hotel_jsons/hotel{i+1}.json')
             s3object.put(Body=(bytes(json.dumps(hotel_detail_dict).encode('UTF-8'))))
             
@@ -207,7 +188,7 @@ class Scraper():
         df = pd.json_normalize(hotel_detail_dict_list) 
         df.to_csv('hotels.csv')
         self.driver.quit()
-        #self.s3_client.upload_file('hotels.csv', 'bookingbucket', 'hotels.csv')
+        self.s3_client.upload_file('hotels.csv', 'bookingbucket', 'hotels.csv')
     
 
     def click_next_page(self):
