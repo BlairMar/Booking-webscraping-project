@@ -15,6 +15,7 @@ import itertools
 import boto3
 import json
 import tempfile
+import math
 
 
 class Scraper():
@@ -35,7 +36,9 @@ class Scraper():
         self.rooms = 0
         self.page_counter = 0
         self.s3_client = boto3.client('s3')
-        self.start_url = 'https://www.booking.com/searchresults.en-gb.html?label=gen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB&lang=en-us&sid=61c3b046e3496364bf0e0cc43c757203&sb=1&sb_lp=1&src=index&src_elem=sb&error_url=https%3A%2F%2Fwww.booking.com%2Findex.html%3Flabel%3Dgen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB%3Bsid%3D61c3b046e3496364bf0e0cc43c757203%3Bsb_price_type%3Dtotal%3Bsig%3Dv1w_e9ye7_%26%3B&ss=Barcelona&is_ski_area=0&dest_type=city&checkin_year=2022&checkin_month=1&checkin_monthday=19&checkout_year=2022&checkout_month=1&checkout_monthday=20&group_adults=2&group_children=0&no_rooms=1&b_h4u_keep_filters=&from_sf=1'
+        self.s3_resource = boto3.resource('s3')
+        self.end_url = None
+        self.hotel_count = 0
 
     def get_webpage(self):
         '''This amends the URL to search for the user inputted data'''
@@ -45,10 +48,15 @@ class Scraper():
         self.get_travellers()
         self.get_rooms()
         
-        curl = f'https://www.booking.com/searchresults.html?label=gen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB&lang=en-us&sid=61c3b046e3496364bf0e0cc43c757203&sb=1&sb_lp=1&src=index&src_elem=sb&error_url=https%3A%2F%2Fwww.booking.com%2Findex.html%3Flabel%3Dgen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB%3Bsid%3D61c3b046e3496364bf0e0cc43c757203%3Bsb_price_type%3Dtotal%3Bsig%3Dv1w_e9ye7_%26%3B&ss={self.dest[0]}&is_ski_area=0&dest_type={self.dest[1]}&checkin_year={self.dates[0]}&checkin_month={self.dates[1]}&checkin_monthday={self.dates[2]}&checkout_year={self.dates[3]}&checkout_month={self.dates[4]}&checkout_monthday={self.dates[5]}&group_adults={self.travellers[0]}&group_children={self.travellers[1]}&age={self.travellers[2]}&age={self.travellers[3]}&age={self.travellers[4]}&age={self.travellers[5]}&age={self.travellers[6]}&age={self.travellers[7]}&age={self.travellers[8]}&age={self.travellers[9]}&age={self.travellers[10]}&age={self.travellers[11]}&no_rooms={self.rooms}&b_h4u_keep_filters=&from_sf=1'
-        webpage = self.driver.get(curl)
-        time.sleep(5)
-        self.driver.get_screenshot_as_file("screenshot_post-get_webpage-headless-updatedurl.png")
+        self.end_url = f'https://www.booking.com/searchresults.html?label=gen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB&lang=en-us&sid=61c3b046e3496364bf0e0cc43c757203&sb=1&sb_lp=1&src=index&src_elem=sb&error_url=https%3A%2F%2Fwww.booking.com%2Findex.html%3Flabel%3Dgen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB%3Bsid%3D61c3b046e3496364bf0e0cc43c757203%3Bsb_price_type%3Dtotal%3Bsig%3Dv1w_e9ye7_%26%3B&ss={self.dest[0]}&is_ski_area=0&dest_type={self.dest[1]}&checkin_year={self.dates[0]}&checkin_month={self.dates[1]}&checkin_monthday={self.dates[2]}&checkout_year={self.dates[3]}&checkout_month={self.dates[4]}&checkout_monthday={self.dates[5]}&group_adults={self.travellers[0]}&group_children={self.travellers[1]}&age={self.travellers[2]}&age={self.travellers[3]}&age={self.travellers[4]}&age={self.travellers[5]}&age={self.travellers[6]}&age={self.travellers[7]}&age={self.travellers[8]}&age={self.travellers[9]}&age={self.travellers[10]}&age={self.travellers[11]}&no_rooms={self.rooms}&b_h4u_keep_filters=&from_sf=1'
+        webpage = self.driver.get(self.end_url)
+        self.driver.get_screenshot_as_file("get_webpage.png")
+        hotel_count_text = self.driver.find_element(By.XPATH,'//*[@id="right"]/div[1]/div/div/div/h1').text
+        hotel_count_text = hotel_count_text.split(": ")
+        hotel_count_text = hotel_count_text[1].split(" p")
+        hotel_count_text = hotel_count_text[0].replace(",","")
+        self.hotel_count = int(float(hotel_count_text))
+        print(f'{self.hotel_count} hotels found')
         return webpage
     
     def get_dates(self):
@@ -107,7 +115,6 @@ class Scraper():
         Returns:
             list: list of hotel URLs'''
         time.sleep(5)
-        self.driver.get_screenshot_as_file("screenshot_get_url-headless-urlupdated.png")
         # should work instead of needing sleep each round, but for some reason doesn't - sometimes elements are stale again?
         # try:
         #     WebDriverWait(self.driver,5).until(EC.presence_of_element_located((By.XPATH,'/html/body/div[3]/div/div[3]/div[1]/div[1]/div[3]/div[4]/div[1]/div/div/div/div[5]/div[27]/div[1]/div[2]/div/div[4]/div/div[1]/div/div/div/div[3]/div[1]')))
@@ -120,6 +127,7 @@ class Scraper():
         hotel_container = self.driver.find_element(By.ID,'search_results_table')
         hotel_list = hotel_container.find_elements(By.CSS_SELECTOR,'div[data-testid="property-card"]')
 
+        
         for element in hotel_list:
             hotel_url = element.find_element(By.XPATH,'.//a')
             hotel_url = hotel_url.get_attribute('href')
@@ -127,23 +135,6 @@ class Scraper():
         self.page_counter += 1
         print(f'Pages visited: {self.page_counter}')
         print(len(self.hotel_urls))
-
-        # for checking errors:
-        # for i,element in enumerate(hotel_list):
-            
-        #     print(i)
-        #     print(element)
-        #     hotel_url = element.find_element_by_xpath('.//a')
-        #     print(hotel_url.text)
-        #     hotel_url = hotel_url.get_attribute('href')
-        #     print(hotel_url)
-        #     print()
-        #     self.hotel_urls.append(hotel_url)
-        # #print(self.hotel_urls)
-        # self.page_counter += 1
-        # print(f'Pages visited: {self.page_counter}')
-        # print(len(self.hotel_urls))
-
 
     def get_hotel_details(self):
         '''This function is used to retrieve individual hotel details.
@@ -155,7 +146,6 @@ class Scraper():
         # url_counter = 0
             # url_counter += 1
         for i, url in enumerate(self.hotel_urls):
-            print(i+1)
             hotel_detail_dict = {'Name' : None, 'Room_Type': None ,'Price' : None, 'Address': None, 'Deals': None, 
                             'Wifi' : 0,'Rating' : None,'Facilities' : None, 'Star': None}
             # hotel_detail_dict = {'Name' : None, 'Room_Type': None ,'Price' : None, 'Address': None, 'Deals': 'None', 
@@ -195,7 +185,6 @@ class Scraper():
                 hotel_detail_dict['Facilities'] = temp_list
             except:
                 hotel_detail_dict['Facilities'] = 'No Facilities Found'   
-            print(hotel_detail_dict)
             
             # For some reason I am unable to get the stars part working.
             try:    
@@ -204,57 +193,47 @@ class Scraper():
                 print(hotel_stars.text)
             except:
                 hotel_detail_dict['Star'] = 'Stars unavailable'   
-                        
-            
+                           
             
             hotel_detail_dict_list.append(hotel_detail_dict)
-            with tempfile.TemporaryDirectory() as temp_dir:
-                with open(f'{temp_dir}/hotel_dict{i+1}.json','w') as file:
-                    json.dump(hotel_detail_dict,file)
-                    self.s3_client.upload_file(f'{temp_dir}/hotel_dict{i+1}.json', 'bookingbucket', f'hotel_jsons/hotel{i+1}.json')
+            # with tempfile.TemporaryDirectory() as temp_dir:
+            #     with open(f'{temp_dir}/hotel_dict{i+1}.json','w') as file:
+            #         json.dump(hotel_detail_dict,file)
+            #         self.s3_client.upload_file(f'{temp_dir}/hotel_dict{i+1}.json', 'bookingbucket', f'hotel_jsons/hotel{i+1}.json')
+            s3object = self.s3_resource.Object('bookingbucket', f'hotel_jsons/hotel{i+1}.json')
+            s3object.put(Body=(bytes(json.dumps(hotel_detail_dict).encode('UTF-8'))))
             
         print('gathered all hotel data')
         df = pd.json_normalize(hotel_detail_dict_list) 
         df.to_csv('hotels.csv')
         self.driver.quit()
-        self.s3_client.upload_file('hotels.csv', 'bookingbucket', 'hotels.csv')
+        #self.s3_client.upload_file('hotels.csv', 'bookingbucket', 'hotels.csv')
     
 
     def click_next_page(self):
         '''This function is used to click the next page of search results'''
-        ignored_exceptions=(NoSuchElementException,StaleElementReferenceException)
-        #pages_remaining = True
-        page_count = 0
+        offset = 25
+        page_max = math.ceil(self.hotel_count/25)
+        max_offset = (page_max -1) * 25
+       
+        # ##USE TO SCRAPE ALL PAGES
+        # while offset < max_offset
+        # next_page = self.end_url + f'&offset={offset}'
+        # self.driver.get(next_page)
+        # offset += 25
+        # self.get_hotel_urls()
 
-        # # ##USE TO SCRAPE ALL PAGES
-        # while pages_remaining:
-        #     try:
-        #         time.sleep(3)
-        #         next_page = WebDriverWait(self.driver, 5, ignored_exceptions=ignored_exceptions).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div[class="ce83a38554 _ea2496c5b"]')))
-        #         next_page.click()
-        #         self.get_hotel_urls()
-        #         self.driver.refresh()
-        #     except:
-        #         pages_remaining = False
+        ##USE TO SCRAPE SMALL RANGE (FOR TESTING) - note each page = 25 results, 2 pages = 50 etc. while offset < 50; scrapes 2 pages
+        while offset < 25:
+            next_page = self.end_url + f'&offset={offset}'
+            self.driver.get(next_page)
+            offset += 25
+            self.get_hotel_urls()
 
-        #USE TO TEST SMALL RANGE OF PAGES
-        for page in range(0):
-            if page_count < 1:
-                #try:
-                    time.sleep(3)
-                    next_page = WebDriverWait(self.driver, 5, ignored_exceptions=ignored_exceptions).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div[class="ce83a38554 _ea2496c5b"]')))
-                    next_page.click()
-                    self.get_hotel_urls()
-                    self.driver.refresh()
-                    page_count += 1
-                # #except:
-                #     pass
-        self.get_hotel_details()    
-
-    
+   
 
 booking = Scraper()
 booking.get_webpage()
 booking.get_hotel_urls()
-booking.get_hotel_details()
 booking.click_next_page()
+booking.get_hotel_details()
