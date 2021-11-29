@@ -62,6 +62,7 @@ class BeginningStage():
         search_bar.click()
         first_option = self.driver.find_element_by_xpath('//*[@id="frm"]/div[1]/div[1]/div[1]/div[1]/ul[1]/li[2]')
         first_option.click()
+        return 
 
     def select_search_bar(self):
     #def select_search_bar(self, destination):
@@ -69,17 +70,18 @@ class BeginningStage():
         
         Attributes:
             destination: str, typed in by user for entry into the search bar'''
-        user_detination = input('Enter the desitnation of your choice : ')
-        self.destination.append(user_detination)
+        user_destination = input('Enter the desitnation of your choice : ')
+        self.destination.append(user_destination)
         
 
         ignored_exceptions=(NoSuchElementException,StaleElementReferenceException)
         search_bar = self.driver.find_element_by_id('ss')
         search_bar.clear()
-        search_bar.send_keys(user_detination)
+        search_bar.send_keys(user_destination)
         first_result = WebDriverWait(self.driver, 5, ignored_exceptions=ignored_exceptions).until(EC.presence_of_element_located(
                     (By.CSS_SELECTOR, 'li[data-i="0"]')))
         first_result.click()
+        return user_destination
 
     def choose_dates(self):
         '''This function is used to choose dates (auto set to 22nd and 23rd November)'''
@@ -88,8 +90,7 @@ class BeginningStage():
         check_out = self.driver.find_element_by_css_selector('td[data-date="2021-12-23"]')
         check_in.click()
         check_out.click()
-
-
+        return
 
     def click_search_button(self):
         '''This function clicks the search button'''
@@ -113,6 +114,7 @@ class BeginningStage():
         search_button = self.driver.find_element_by_css_selector('button[type="submit"]')
         search_button.click()
         return webpage
+        
     def get_dates(self):
         travel_dt = input('Enter Travel date (yyyy-mm-dd): ')
         self.dates.append(travel_dt[0:4])
@@ -326,19 +328,22 @@ class BeginningStage():
                 add_room.click()
                 number_of_rooms -= 1        
 
-first_booking = BeginningStage()
-first_booking.get_webpage()
-first_booking.accept_cookies()
-first_booking.select_search_bar()
-first_booking.choose_dates()
-first_booking.adults(2)
-#first_booking.children(2,4,14)
-#first_booking.rooms(2)
-first_booking.click_search_button()
-# first_booking.duplicate_tab()
-# first_booking.apply_star_rating(2)
-# first_booking.budget_filters(25)
-first_booking.get_hotel_urls()
-first_booking.click_next_page()
-#first_booking.get_hotel_details()
-# first_booking.write_to_csv()
+if __name__ == '__main__':
+
+
+    first_booking = BeginningStage()
+    first_booking.get_webpage()
+    first_booking.accept_cookies()
+    first_booking.select_search_bar()
+    first_booking.choose_dates()
+    first_booking.adults(2)
+    #first_booking.children(2,4,14)
+    #first_booking.rooms(2)
+    first_booking.click_search_button()
+    # first_booking.duplicate_tab()
+    # first_booking.apply_star_rating(2)
+    # first_booking.budget_filters(25)
+    first_booking.get_hotel_urls()
+    first_booking.click_next_page()
+    #first_booking.get_hotel_details()
+    # first_booking.write_to_csv()
