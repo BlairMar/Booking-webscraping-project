@@ -25,7 +25,8 @@ class Scraper():
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
         options.add_argument("--headless")
         options.add_argument("user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36'")
-        self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+        self.driver= webdriver.Remote('http://127.0.0.1:4444/wd/hub',options=options)
+        # optionsself.driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
         self.hotel_urls = []
         self.dates=[] # Checkin and checkout dates to be saved as checkinyyyy, checkinmm, checkindd, checkoutyyyy, checkoutmm & checkoutdd
         self.dest=[]# Destiantion is saved in the list, however curretnly set to search only one destination
