@@ -25,16 +25,17 @@ class Scraper():
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
         options.add_argument("--headless")
         options.add_argument("user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36'")
-        self.driver= webdriver.Remote('http://127.0.0.1:4444/wd/hub',options=options)
-        # optionsself.driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+        #self.driver= webdriver.Remote('http://127.0.0.1:4444/wd/hub',options=options)
+        self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
         self.hotel_urls = []
         self.dates=[] # Checkin and checkout dates to be saved as checkinyyyy, checkinmm, checkindd, checkoutyyyy, checkoutmm & checkoutdd
         self.dest=[]# Destiantion is saved in the list, however curretnly set to search only one destination
         self.travellers=[0,0,0,0,0,0,0,0,0,0,0,0]
         self.rooms = 0
         self.page_counter = 0
-        self.s3_client = boto3.client('s3')
-        self.s3_resource = boto3.resource('s3')
+        session = boto3.Session(aws_access_key_id='AKIAXMCPWA5BTQP6FSXC',aws_secret_access_key='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',)
+        self.s3_client = session.client('s3')
+        self.s3_resource = session.resource('s3')
         self.end_url = None
         self.hotel_count = 0
 
