@@ -24,6 +24,7 @@ class Scraper():
         options = webdriver.ChromeOptions()
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
         options.add_argument("--headless")
+        options.add_argument("--no-sandbox")
         options.add_argument("user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36'")
         #self.driver= webdriver.Remote('http://127.0.0.1:4444/wd/hub',options=options)
         self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
@@ -63,24 +64,30 @@ class Scraper():
             Returns: 
                 self.dates - list of travel dates'''
 
-        travel_dt = input('Enter Travel date (yyyy-mm-dd): ')
-        self.dates.append(travel_dt[0:4])
-        self.dates.append(travel_dt[5:7])
-        self.dates.append(travel_dt[8:10])
+        try:
+            travel_dt = input('Enter Travel date (yyyy-mm-dd): ')
+            self.dates.append(travel_dt[0:4])
+            self.dates.append(travel_dt[5:7])
+            self.dates.append(travel_dt[8:10])
+        except:
+            self.dates = ['2022','01','01','2022','01','10']
         return self.dates
         
     def get_dest(self):
         '''This method retrieves the travel destination name and type from user input.
             Returns: 
                 self.dest - list of travel destination and country or city'''
-        user_dest = input('Enter the desitnation of your choice : ')
-        self.dest.append(user_dest)
-        user_country = input('Is this a country? [Y/N]:')
-        user_country = user_country.upper()
-        if user_country == 'Y':
-            self.dest.append('country')
-        else:
-            self.dest.append('city')
+        try:
+            user_dest = input('Enter the desitnation of your choice : ')
+            self.dest.append(user_dest)
+            user_country = input('Is this a country? [Y/N]:')
+            user_country = user_country.upper()
+            if user_country == 'Y':
+                self.dest.append('country')
+            else:
+                self.dest.append('city')  
+        except:
+            self.dest = ['spain','country']
         return self.dest
 
     def get_travellers(self):
@@ -88,21 +95,24 @@ class Scraper():
             
             Returns:
                 self.travellers - list of number of adults, number of children and their ages'''
-        
-        adults = int(input("How many adults are travelling? (max = 30): "))
-        self.travellers[0] = adults
-        children = int(input("How many children are travelling?(max = 10): "))
-        self.travellers[1] = (children)
 
-        if children == 1:
-            children_age = int(input("Please input the child's age: "))
-            self.travellers[2] = (children_age)
-        elif children > 1:
-            n = 1
-            while n <= children:
-                children_age = input(f"Please input the age of child {n}:  ")
-                self.travellers[n+1] = (children_age)
-                n += 1
+        try:
+            adults = int(input("How many adults are travelling? (max = 30): "))
+            self.travellers[0] = adults
+            children = int(input("How many children are travelling?(max = 10): "))
+            self.travellers[1] = (children)
+
+            if children == 1:
+                children_age = int(input("Please input the child's age: "))
+                self.travellers[2] = (children_age)
+            elif children > 1:
+                n = 1
+                while n <= children:
+                    children_age = input(f"Please input the age of child {n}:  ")
+                    self.travellers[n+1] = (children_age)
+                    n += 1
+        except:
+            self.travellers = [2,0,0,0,0,0,0,0,0,0,0,0]
         return self.travellers
 
    
@@ -111,8 +121,10 @@ class Scraper():
             
             Returns:
                 self.rooms - int'''
-
-        self.rooms = int(input("How many rooms do you need?: "))
+        try:
+            self.rooms = int(input("How many rooms do you need?: "))
+        except:
+            self.rooms = 1
         return self.rooms
 
     def get_hotel_urls(self):
