@@ -45,9 +45,9 @@ class Scraper():
         self.hotel_count = 0
         DATABASE_TYPE = 'postgresql'
         DBAPI = 'psycopg2'
-        ENDPOINT = 'aicoredb.czoxjx0tep9t.eu-west-2.rds.amazonaws.com'
+        ENDPOINT = 'bookingscraperdb.crrotzprrmrr.us-east-2.rds.amazonaws.com'
         USER = 'postgres'
-        PASSWORD = 'pg-admin-1994'
+        PASSWORD = 'r8wsxVceuncMNT8'
         DATABASE = 'postgres'
         PORT = 5432
         self.engine = create_engine(f"{DATABASE_TYPE}+{DBAPI}://{USER}:{PASSWORD}@{ENDPOINT}:{PORT}/{DATABASE}")
@@ -82,6 +82,8 @@ class Scraper():
             self.dates.append(travel_dt[5:7])
             self.dates.append(travel_dt[8:10])
         except:
+            print('')
+            print('No user input detected, using default values (Departure 1st Jan 2022, Return 10th Jan 2022)')
             self.dates = ['2022','01','01','2022','01','10']
         return self.dates
         
@@ -99,6 +101,8 @@ class Scraper():
             else:
                 self.dest.append('city')  
         except:
+            print('')
+            print('No user input detected, using default value (Spain)')
             self.dest = ['spain','country']
         return self.dest
 
@@ -124,6 +128,8 @@ class Scraper():
                     self.travellers[n+1] = (children_age)
                     n += 1
         except:
+            print('')
+            print('No user input detected, using default values (2 adults, 0 children)')
             self.travellers = [2,0,0,0,0,0,0,0,0,0,0,0]
         return self.travellers
 
@@ -136,6 +142,8 @@ class Scraper():
         try:
             self.rooms = int(input("How many rooms do you need?: "))
         except:
+            print('')
+            print('No user input detected, using default value (1 room)')
             self.rooms = 1
         return self.rooms
 
