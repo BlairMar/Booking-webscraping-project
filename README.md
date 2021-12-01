@@ -1,6 +1,6 @@
 # booking_scraper
 
-Foobar is a Python library for dealing with word pluralization.
+booking_scraper is a script to scrape booking.com with user input
 
 ## Usage
 
