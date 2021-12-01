@@ -14,6 +14,9 @@ from selenium.webdriver.common.action_chains import ActionChains
 import boto3
 import json
 import math
+import psycopg2
+from sqlalchemy import create_engine
+
 
 
 class Scraper():
@@ -26,6 +29,7 @@ class Scraper():
         options.add_argument("--headless")
         options.add_argument("--no-sandbox")
         options.add_argument("user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36'")
+        options.add_argument('--disable-dev-shm-usage')
         #self.driver= webdriver.Remote('http://127.0.0.1:4444/wd/hub',options=options)
         self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
         self.hotel_urls = []
@@ -39,6 +43,14 @@ class Scraper():
         self.s3_resource = session.resource('s3')
         self.end_url = None
         self.hotel_count = 0
+        DATABASE_TYPE = 'postgresql'
+        DBAPI = 'psycopg2'
+        ENDPOINT = 'aicoredb.czoxjx0tep9t.eu-west-2.rds.amazonaws.com'
+        USER = 'postgres'
+        PASSWORD = 'r8wsxVceuncMNT8'
+        DATABASE = 'Pagila'
+        PORT = 5432
+        self.engine = create_engine(f"{DATABASE_TYPE}+{DBAPI}://{USER}:{PASSWORD}@{ENDPOINT}:{PORT}/{DATABASE}")
 
     def get_webpage(self):
         '''This amends the URL to search for the user inputted data'''
@@ -195,7 +207,6 @@ class Scraper():
             try:    
                 hotel_stars  = self.driver.find_element(By.XPATH,'//*[@id="wrap-hotelpage-top"]/div[1]/span/span[1]/div/div/span/div/span')
                 hotel_detail_dict['Star'] = hotel_stars.text  
-                print(hotel_stars.text)
             except:
                 hotel_detail_dict['Star'] = 'Stars unavailable'   
                            
@@ -207,6 +218,7 @@ class Scraper():
         print('gathered all hotel data')
         df = pd.json_normalize(hotel_detail_dict_list) 
         df.to_csv('hotels.csv')
+        df.to_sql('hotels',self.engine)
         self.driver.quit()
         self.s3_client.upload_file('hotels.csv', 'bookingbucket', 'hotels.csv')
     
