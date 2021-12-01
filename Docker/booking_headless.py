@@ -47,8 +47,8 @@ class Scraper():
         DBAPI = 'psycopg2'
         ENDPOINT = 'aicoredb.czoxjx0tep9t.eu-west-2.rds.amazonaws.com'
         USER = 'postgres'
-        PASSWORD = 'r8wsxVceuncMNT8'
-        DATABASE = 'Pagila'
+        PASSWORD = 'pg-admin-1994'
+        DATABASE = 'postgres'
         PORT = 5432
         self.engine = create_engine(f"{DATABASE_TYPE}+{DBAPI}://{USER}:{PASSWORD}@{ENDPOINT}:{PORT}/{DATABASE}")
 
@@ -218,7 +218,7 @@ class Scraper():
         print('gathered all hotel data')
         df = pd.json_normalize(hotel_detail_dict_list) 
         df.to_csv('hotels.csv')
-        df.to_sql('hotels',self.engine)
+        df.to_sql('hotels',self.engine,if_exists = 'replace')
         self.driver.quit()
         self.s3_client.upload_file('hotels.csv', 'bookingbucket', 'hotels.csv')
     
@@ -243,7 +243,6 @@ class Scraper():
             offset += 25
             self.get_hotel_urls()
 
-   
 
 booking = Scraper()
 booking.get_webpage()

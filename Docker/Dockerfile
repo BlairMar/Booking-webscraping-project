@@ -17,5 +17,5 @@ COPY . .
 
 RUN pip install -r requirements.txt
 
-CMD ["python", "booking_headless.py"]
+CMD ["python", "-u", "booking_headless.py"]
 
