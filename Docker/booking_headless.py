@@ -62,7 +62,6 @@ class Scraper():
         
         self.end_url = f'https://www.booking.com/searchresults.html?label=gen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB&lang=en-us&sid=61c3b046e3496364bf0e0cc43c757203&sb=1&sb_lp=1&src=index&src_elem=sb&error_url=https%3A%2F%2Fwww.booking.com%2Findex.html%3Flabel%3Dgen173nr-1DCAEoggI46AdIM1gEaFCIAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4Au2Q-owGwAIB0gIkMjgwYjc1OWMtNWJjNS00MzRmLTkwMzAtYzllNDk0OTc5ZWFh2AIE4AIB%3Bsid%3D61c3b046e3496364bf0e0cc43c757203%3Bsb_price_type%3Dtotal%3Bsig%3Dv1w_e9ye7_%26%3B&ss={self.dest[0]}&is_ski_area=0&dest_type={self.dest[1]}&checkin_year={self.dates[0]}&checkin_month={self.dates[1]}&checkin_monthday={self.dates[2]}&checkout_year={self.dates[3]}&checkout_month={self.dates[4]}&checkout_monthday={self.dates[5]}&group_adults={self.travellers[0]}&group_children={self.travellers[1]}&age={self.travellers[2]}&age={self.travellers[3]}&age={self.travellers[4]}&age={self.travellers[5]}&age={self.travellers[6]}&age={self.travellers[7]}&age={self.travellers[8]}&age={self.travellers[9]}&age={self.travellers[10]}&age={self.travellers[11]}&no_rooms={self.rooms}&b_h4u_keep_filters=&from_sf=1'
         webpage = self.driver.get(self.end_url)
-        self.driver.get_screenshot_as_file("get_webpage.png")
         hotel_count_text = self.driver.find_element(By.XPATH,'//*[@id="right"]/div[1]/div/div/div/h1').text
         hotel_count_text = hotel_count_text.split(": ")
         hotel_count_text = hotel_count_text[1].split(" p")
