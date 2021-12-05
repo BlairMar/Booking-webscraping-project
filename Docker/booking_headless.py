@@ -16,7 +16,7 @@ import json
 import math
 import psycopg2
 from sqlalchemy import create_engine
-
+import aws_session
 
 
 class Scraper():
@@ -30,7 +30,6 @@ class Scraper():
         options.add_argument("--no-sandbox")
         options.add_argument("user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36'")
         options.add_argument('--disable-dev-shm-usage')
-        #self.driver= webdriver.Remote('http://127.0.0.1:4444/wd/hub',options=options)
         self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
         self.hotel_urls = []
         self.dates=[] # Checkin and checkout dates to be saved as checkinyyyy, checkinmm, checkindd, checkoutyyyy, checkoutmm & checkoutdd
@@ -38,9 +37,8 @@ class Scraper():
         self.travellers=[0,0,0,0,0,0,0,0,0,0,0,0]
         self.rooms = 0
         self.page_counter = 0
-        session = boto3.Session(aws_access_key_id='AKIAXMCPWA5BTQP6FSXC',aws_secret_access_key='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',)
-        self.s3_client = session.client('s3')
-        self.s3_resource = session.resource('s3')
+        self.s3_client = aws_session.session.client('s3')
+        self.s3_resource = aws_session.session.resource('s3')
         self.end_url = None
         self.hotel_count = 0
         DATABASE_TYPE = 'postgresql'
@@ -234,17 +232,18 @@ class Scraper():
         '''This function is used to click the next page of search results'''
         offset = 25
         page_max = math.ceil(self.hotel_count/25)
+        pages = 120
         max_offset = (page_max -1) * 25
        
         # ##USE TO SCRAPE ALL PAGES
-        # while offset < max_offset
-        # next_page = self.end_url + f'&offset={offset}'
-        # self.driver.get(next_page)
-        # offset += 25
-        # self.get_hotel_urls()
+        # while offset < max_offset:
+        #     next_page = self.end_url + f'&offset={offset}'
+        #     self.driver.get(next_page)
+        #     offset += 25
+        #     self.get_hotel_urls()
 
         ##USE TO SCRAPE SMALL RANGE (FOR TESTING) - note each page = 25 results, 2 pages = 50 etc. while offset < 50; scrapes 2 pages
-        while offset < 25:
+        while offset < (pages*25):
             next_page = self.end_url + f'&offset={offset}'
             self.driver.get(next_page)
             offset += 25
