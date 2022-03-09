@@ -43,10 +43,10 @@ class Scraper():
         self.hotel_count = 0
         DATABASE_TYPE = 'postgresql'
         DBAPI = 'psycopg2'
-        ENDPOINT = 'bookingscraperdb.crrotzprrmrr.us-east-2.rds.amazonaws.com'
-        USER = 'postgres'
-        PASSWORD = 'r8wsxVceuncMNT8'
-        DATABASE = 'postgres'
+        ENDPOINT = 'xxx'
+        USER = 'xx'
+        PASSWORD = 'xx'
+        DATABASE = 'xx'
         PORT = 5432
         self.engine = create_engine(f"{DATABASE_TYPE}+{DBAPI}://{USER}:{PASSWORD}@{ENDPOINT}:{PORT}/{DATABASE}")
 
